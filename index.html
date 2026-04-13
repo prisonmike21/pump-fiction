@@ -1,0 +1,1640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pump Fiction</title>
+<style>
+:root {
+  --bg: #0f0f13;
+  --surface: #1a1a24;
+  --surface2: #23233a;
+  --accent: #6c5ce7;
+  --accent2: #a29bfe;
+  --green: #00cec9;
+  --orange: #fdcb6e;
+  --red: #ff7675;
+  --text: #f0f0f5;
+  --muted: #8888a0;
+  --border: #2d2d44;
+  --radius: 12px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh;
+}
+.container { max-width: 920px; margin: 0 auto; padding: 24px 20px; }
+
+/* Header */
+header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 0 24px; border-bottom: 1px solid var(--border); margin-bottom: 32px;
+}
+.logo { display: flex; align-items: center; gap: 12px; }
+.logo-icon {
+  width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent), var(--green));
+  border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px;
+}
+.logo h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+.logo span { color: var(--accent2); }
+.header-controls { display: flex; gap: 8px; }
+.toggle-btn {
+  background: var(--surface); border: 1px solid var(--border); color: var(--muted);
+  padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; transition: all 0.2s;
+}
+.toggle-btn:hover { border-color: var(--accent); color: var(--text); }
+.toggle-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* Form */
+.input-section { margin-bottom: 16px; }
+.section-title {
+  font-size: 13px; color: var(--accent2); text-transform: uppercase;
+  letter-spacing: 1.2px; margin: 28px 0 14px; font-weight: 600;
+  display: flex; align-items: center; gap: 8px;
+}
+.section-title:first-child { margin-top: 0; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group.full { grid-column: 1 / -1; }
+.form-group label { font-size: 12px; color: var(--muted); font-weight: 500; }
+select, input[type="number"], input[type="time"], input[type="text"], textarea {
+  background: var(--surface); border: 1px solid var(--border); color: var(--text);
+  padding: 9px 12px; border-radius: 8px; font-size: 14px; font-family: inherit;
+  transition: border-color 0.2s; width: 100%;
+}
+select:focus, input:focus, textarea:focus { outline: none; border-color: var(--accent); }
+textarea { resize: vertical; min-height: 50px; }
+
+/* Chips */
+.chip-group { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  padding: 5px 12px; border-radius: 20px; font-size: 12px; cursor: pointer;
+  background: var(--surface); border: 1px solid var(--border); color: var(--muted);
+  transition: all 0.2s; user-select: none;
+}
+.chip:hover { border-color: var(--accent); color: var(--text); }
+.chip.selected { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* Generate button */
+.generate-btn {
+  display: block; width: 100%; padding: 16px;
+  background: linear-gradient(135deg, var(--accent), #5a4bd1);
+  border: none; border-radius: var(--radius); color: #fff;
+  font-size: 17px; font-weight: 600; cursor: pointer;
+  transition: all 0.2s; margin: 24px 0 20px; letter-spacing: 0.3px;
+}
+.generate-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(108,92,231,0.3); }
+.generate-btn:active { transform: translateY(0); }
+.generate-btn.loading { opacity: 0.7; cursor: wait; }
+
+/* Output */
+.output-section { display: none; }
+.output-section.visible { display: block; }
+.plan-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 8px;
+}
+.plan-header h2 { font-size: 22px; }
+.plan-meta { display: flex; gap: 8px; flex-wrap: wrap; }
+.meta-badge { padding: 4px 12px; border-radius: 16px; font-size: 12px; font-weight: 500; }
+.meta-badge.goal { background: rgba(108,92,231,0.2); color: var(--accent2); }
+.meta-badge.time { background: rgba(0,206,201,0.2); color: var(--green); }
+.meta-badge.energy { background: rgba(253,203,110,0.2); color: var(--orange); }
+.meta-badge.injury { background: rgba(255,118,117,0.2); color: var(--red); }
+
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px; margin-bottom: 16px; transition: all 0.3s;
+}
+.card:hover { border-color: var(--surface2); }
+.card-header {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 16px; font-size: 17px; font-weight: 600;
+}
+.card-icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center; font-size: 16px;
+}
+.card-icon.workout { background: rgba(108,92,231,0.2); }
+.card-icon.meal { background: rgba(0,206,201,0.2); }
+.card-icon.snack { background: rgba(253,203,110,0.2); }
+.card-icon.tip { background: rgba(255,118,117,0.2); }
+.card-icon.schedule { background: rgba(162,155,254,0.2); }
+.card-icon.recovery { background: rgba(0,206,201,0.15); }
+.card-icon.chat { background: rgba(108,92,231,0.15); }
+
+/* Exercise table */
+.exercise-table { width: 100%; border-collapse: collapse; }
+.exercise-table th {
+  text-align: left; font-size: 11px; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.5px; padding: 0 0 8px; font-weight: 500;
+}
+.exercise-table td { padding: 10px 0; border-top: 1px solid var(--border); font-size: 14px; }
+.exercise-table td:first-child { font-weight: 500; }
+.exercise-table .note { color: var(--muted); font-size: 12px; display: block; margin-top: 2px; }
+.exercise-table .sub { color: var(--orange); font-size: 12px; font-style: italic; }
+.exercise-table .adjusted { color: var(--red); font-size: 11px; font-style: italic; display: block; margin-top: 1px; }
+
+/* Meal items */
+.meal-item {
+  display: flex; justify-content: space-between; align-items: start;
+  padding: 12px 0; border-bottom: 1px solid var(--border);
+}
+.meal-item:last-child { border-bottom: none; }
+.meal-name { font-weight: 500; }
+.meal-desc { font-size: 13px; color: var(--muted); margin-top: 2px; }
+.meal-macros { font-size: 12px; color: var(--green); white-space: nowrap; margin-left: 16px; }
+
+/* Snack card */
+.snack-row { display: flex; gap: 16px; }
+.snack-box { flex: 1; background: var(--surface2); border-radius: 8px; padding: 16px; }
+.snack-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.snack-text { font-size: 14px; font-weight: 500; }
+.snack-detail { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+.tip-text { font-size: 14px; line-height: 1.7; color: var(--muted); }
+.tip-text strong { color: var(--text); }
+
+.summary-bar { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+.summary-stat {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; padding: 12px 16px; flex: 1; min-width: 100px; text-align: center;
+}
+.summary-stat .val { font-size: 20px; font-weight: 700; }
+.summary-stat .lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+.summary-stat.cal .val { color: var(--green); }
+.summary-stat.pro .val { color: var(--accent2); }
+.summary-stat.dur .val { color: var(--orange); }
+
+/* Disclaimer */
+.disclaimer {
+  font-size: 11px; color: var(--muted); font-style: italic;
+  padding: 10px 14px; background: var(--surface2); border-radius: 8px; margin-top: 12px;
+}
+
+/* Coach Chat */
+.chat-panel { margin-top: 16px; }
+.chat-messages {
+  max-height: 300px; overflow-y: auto; margin-bottom: 12px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.chat-msg {
+  padding: 10px 14px; border-radius: 10px; font-size: 13px; max-width: 85%; line-height: 1.5;
+}
+.chat-msg.user {
+  background: var(--accent); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px;
+}
+.chat-msg.assistant {
+  background: var(--surface2); color: var(--text); align-self: flex-start; border-bottom-left-radius: 4px;
+}
+.chat-msg .chat-action { color: var(--green); font-size: 12px; display: block; margin-top: 4px; font-weight: 500; }
+.chat-input-row { display: flex; gap: 8px; }
+.chat-input-row input {
+  flex: 1; background: var(--surface); border: 1px solid var(--border); color: var(--text);
+  padding: 10px 14px; border-radius: 8px; font-size: 14px; font-family: inherit;
+}
+.chat-input-row input:focus { outline: none; border-color: var(--accent); }
+.chat-send {
+  background: var(--accent); border: none; color: #fff; padding: 10px 20px;
+  border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; white-space: nowrap;
+}
+.chat-send:hover { background: #5a4bd1; }
+.chat-suggestions { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.chat-suggestion {
+  padding: 4px 10px; border-radius: 14px; font-size: 11px; cursor: pointer;
+  background: transparent; border: 1px solid var(--border); color: var(--muted); transition: all 0.2s;
+}
+.chat-suggestion:hover { border-color: var(--accent); color: var(--text); }
+
+/* Presenter Mode */
+body.presenter .container { max-width: 1100px; padding: 40px 48px; }
+body.presenter header { padding: 24px 0 32px; }
+body.presenter .logo h1 { font-size: 32px; }
+body.presenter .form-grid { gap: 20px; }
+body.presenter select, body.presenter input, body.presenter textarea { font-size: 17px; padding: 14px 18px; }
+body.presenter .chip { font-size: 15px; padding: 8px 16px; }
+body.presenter .generate-btn { font-size: 20px; padding: 20px; }
+body.presenter .plan-header h2 { font-size: 28px; }
+body.presenter .card { padding: 28px; margin-bottom: 20px; }
+body.presenter .card-header { font-size: 20px; }
+body.presenter .exercise-table td { font-size: 16px; padding: 12px 0; }
+body.presenter .exercise-table th { font-size: 12px; }
+body.presenter .meal-item { padding: 14px 0; }
+body.presenter .meal-name { font-size: 16px; }
+body.presenter .summary-stat .val { font-size: 26px; }
+body.presenter label { font-size: 14px; }
+body.presenter .section-title { font-size: 14px; }
+body.presenter .tip-text { font-size: 16px; }
+body.presenter .chat-msg { font-size: 15px; }
+
+body.presenter .card { opacity: 0.3; transition: opacity 0.4s; }
+body.presenter .card.active-card { opacity: 1; }
+body.presenter.no-step .card { opacity: 1; }
+
+/* Animations */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-in { animation: fadeInUp 0.4s ease forwards; }
+
+/* Loading shimmer */
+.shimmer {
+  background: linear-gradient(90deg, var(--surface) 25%, var(--surface2) 50%, var(--surface) 75%);
+  background-size: 200% 100%; animation: shimmer 1.5s infinite;
+  border-radius: var(--radius); height: 200px; margin-bottom: 16px;
+}
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+@media (max-width: 600px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .snack-row { flex-direction: column; }
+  .header-controls { flex-direction: column; }
+  .summary-bar { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="logo">
+      <div class="logo-icon">&#9889;</div>
+      <h1>Pump <span>Fiction</span></h1>
+    </div>
+    <div class="header-controls">
+      <button class="toggle-btn" id="demoBtn" onclick="toggleDemo()">Demo Mode</button>
+      <button class="toggle-btn" id="presenterBtn" onclick="togglePresenter()">Presenter Mode</button>
+    </div>
+  </header>
+
+  <!-- INPUT FORM -->
+  <section class="input-section" id="inputSection">
+
+    <div class="section-title">&#127919; Goals &amp; Basics</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Fitness Goal</label>
+        <select id="goal">
+          <option value="">Select goal...</option>
+          <option value="build_muscle">Build Muscle</option>
+          <option value="lose_fat">Lose Fat</option>
+          <option value="recomposition">Body Recomposition</option>
+          <option value="strength">Build Strength</option>
+          <option value="general">General Fitness</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Time Available</label>
+        <select id="time">
+          <option value="">Select time...</option>
+          <option value="20">20 minutes</option>
+          <option value="30">30 minutes</option>
+          <option value="45">45 minutes</option>
+          <option value="60">60 minutes</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>How Do You Feel Today?</label>
+        <select id="energy">
+          <option value="">Select energy...</option>
+          <option value="great">Great - Let's crush it</option>
+          <option value="okay">Okay - Normal day</option>
+          <option value="tired">Tired - Low energy</option>
+          <option value="sore">Sore - Need recovery</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Workout Focus</label>
+        <select id="focus">
+          <option value="">Select focus...</option>
+          <option value="full_body">Full Body</option>
+          <option value="upper">Upper Body</option>
+          <option value="lower">Lower Body</option>
+          <option value="push">Push</option>
+          <option value="pull">Pull</option>
+          <option value="cardio">Cardio</option>
+          <option value="recovery">Recovery / Mobility</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label>Available Equipment</label>
+        <div class="chip-group" id="equipmentChips">
+          <span class="chip" data-val="bodyweight">Bodyweight</span>
+          <span class="chip" data-val="dumbbells">Dumbbells</span>
+          <span class="chip" data-val="barbell">Barbell</span>
+          <span class="chip" data-val="bench">Bench</span>
+          <span class="chip" data-val="bands">Resistance Bands</span>
+          <span class="chip" data-val="machines">Machines</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">&#128197; Schedule &amp; Recovery</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Wake Time</label>
+        <input type="time" id="wakeTime" value="07:00">
+      </div>
+      <div class="form-group">
+        <label>Sleep Time</label>
+        <input type="time" id="sleepTime" value="23:00">
+      </div>
+      <div class="form-group full">
+        <label>Today's Busy Blocks (e.g. "9-12, 14-16")</label>
+        <input type="text" id="scheduleBlocks" placeholder="e.g. 9-12, 14-16, 18-19">
+      </div>
+      <div class="form-group">
+        <label>Preferred Workout Window</label>
+        <select id="prefWindow">
+          <option value="no_preference">No preference</option>
+          <option value="early_morning">Early Morning (6-8am)</option>
+          <option value="late_morning">Late Morning (9-11am)</option>
+          <option value="afternoon">Afternoon (12-3pm)</option>
+          <option value="evening">Evening (4-8pm)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Stress Level</label>
+        <select id="stress">
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Can Eat Before Workout?</label>
+        <select id="eatBefore">
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Post-Workout Meal Within 1hr?</label>
+        <select id="eatAfter">
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label>Current Soreness</label>
+        <div class="chip-group" id="sorenessChips">
+          <span class="chip selected" data-val="none">None</span>
+          <span class="chip" data-val="upper_body">Upper Body</span>
+          <span class="chip" data-val="lower_body">Lower Body</span>
+          <span class="chip" data-val="full_body">Full Body</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">&#129657; Injuries &amp; Limitations</div>
+    <div class="form-grid">
+      <div class="form-group full">
+        <label>Active Issue Areas</label>
+        <div class="chip-group" id="injuryChips">
+          <span class="chip selected" data-val="none">None</span>
+          <span class="chip" data-val="shoulder">Shoulder</span>
+          <span class="chip" data-val="elbow">Elbow</span>
+          <span class="chip" data-val="wrist">Wrist</span>
+          <span class="chip" data-val="lower_back">Lower Back</span>
+          <span class="chip" data-val="hip">Hip</span>
+          <span class="chip" data-val="knee">Knee</span>
+          <span class="chip" data-val="ankle">Ankle</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Severity</label>
+        <select id="injurySeverity">
+          <option value="mild">Mild</option>
+          <option value="moderate">Moderate</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Rehab Preference</label>
+        <select id="rehabPref">
+          <option value="avoid">Avoid aggravating movements only</option>
+          <option value="mobility">Include light mobility suggestions</option>
+          <option value="rehab">Include rehab-friendly accessory ideas</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label>Movement Restrictions / Pain Triggers</label>
+        <div class="chip-group" id="restrictionChips">
+          <span class="chip" data-val="overhead_pressing">Overhead Pressing</span>
+          <span class="chip" data-val="deep_knee_bend">Deep Knee Bend</span>
+          <span class="chip" data-val="running">Running</span>
+          <span class="chip" data-val="hinge_from_floor">Hinging From Floor</span>
+          <span class="chip" data-val="push_ups">Push-Ups</span>
+          <span class="chip" data-val="pull_ups">Pull-Ups</span>
+          <span class="chip" data-val="jumping">Jumping</span>
+        </div>
+      </div>
+      <div class="form-group full">
+        <label>Custom Restriction Note (optional)</label>
+        <input type="text" id="customRestriction" placeholder="e.g. avoid twisting movements">
+      </div>
+    </div>
+
+    <div class="section-title">&#127860; Nutrition</div>
+    <div class="form-grid">
+      <div class="form-group full">
+        <label>Foods Available Today</label>
+        <textarea id="foods" placeholder="e.g. chicken, rice, eggs, spinach, oats, bananas, greek yogurt, almonds..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Calorie Target (optional)</label>
+        <input type="number" id="calories" placeholder="e.g. 2200">
+      </div>
+      <div class="form-group">
+        <label>Protein Target (optional, grams)</label>
+        <input type="number" id="protein" placeholder="e.g. 150">
+      </div>
+    </div>
+
+    <button class="generate-btn" id="generateBtn" onclick="generate()">
+      Generate Today's Plan
+    </button>
+  </section>
+
+  <!-- LOADING -->
+  <section id="loadingSection" style="display:none;">
+    <div class="shimmer"></div>
+    <div class="shimmer" style="height:160px;"></div>
+    <div class="shimmer" style="height:120px;"></div>
+  </section>
+
+  <!-- OUTPUT -->
+  <section class="output-section" id="outputSection">
+    <div id="outputContent"></div>
+    <!-- Coach Chat -->
+    <div class="card chat-panel" id="chatPanel" style="display:none;">
+      <div class="card-header"><div class="card-icon chat">&#128172;</div> Coach Chat</div>
+      <div class="chat-suggestions" id="chatSuggestions"></div>
+      <div class="chat-messages" id="chatMessages"></div>
+      <div class="chat-input-row">
+        <input type="text" id="chatInput" placeholder="Ask me to adjust your plan..." onkeydown="if(event.key==='Enter')sendChat()">
+        <button class="chat-send" onclick="sendChat()">Send</button>
+      </div>
+    </div>
+    <button class="generate-btn" style="background: var(--surface); border: 1px solid var(--border); margin-top: 16px;" onclick="resetForm()">
+      Start Over
+    </button>
+  </section>
+</div>
+
+<script>
+// ============================================================
+// EXERCISE DATABASE (extended with tags for injury filtering)
+// ============================================================
+const EXERCISES = {
+  upper: {
+    push: {
+      dumbbells: [
+        { name: 'Dumbbell Bench Press', muscle: 'Chest', need: ['bench'], tags: [] },
+        { name: 'Dumbbell Shoulder Press', muscle: 'Shoulders', tags: ['overhead_pressing'] },
+        { name: 'Dumbbell Flyes', muscle: 'Chest', need: ['bench'], tags: [] },
+        { name: 'Lateral Raises', muscle: 'Shoulders', tags: [] },
+        { name: 'Overhead Tricep Extension', muscle: 'Triceps', tags: ['overhead_pressing'] },
+        { name: 'Dumbbell Floor Press', muscle: 'Chest', tags: [] },
+        { name: 'Incline Dumbbell Press', muscle: 'Upper Chest', need: ['bench'], tags: [] },
+      ],
+      barbell: [
+        { name: 'Barbell Bench Press', muscle: 'Chest', need: ['bench'], tags: [] },
+        { name: 'Overhead Press', muscle: 'Shoulders', tags: ['overhead_pressing'] },
+        { name: 'Close-Grip Bench Press', muscle: 'Triceps', need: ['bench'], tags: [] },
+        { name: 'Barbell Floor Press', muscle: 'Chest', tags: [] },
+      ],
+      bodyweight: [
+        { name: 'Push-Ups', muscle: 'Chest', tags: ['push_ups'] },
+        { name: 'Diamond Push-Ups', muscle: 'Triceps', tags: ['push_ups'] },
+        { name: 'Pike Push-Ups', muscle: 'Shoulders', tags: ['push_ups', 'overhead_pressing'] },
+        { name: 'Decline Push-Ups', muscle: 'Upper Chest', tags: ['push_ups'] },
+        { name: 'Tricep Dips (on bench/chair)', muscle: 'Triceps', tags: [] },
+      ],
+      bands: [
+        { name: 'Banded Chest Press', muscle: 'Chest', tags: [] },
+        { name: 'Banded Overhead Press', muscle: 'Shoulders', tags: ['overhead_pressing'] },
+        { name: 'Banded Lateral Raises', muscle: 'Shoulders', tags: [] },
+        { name: 'Banded Tricep Pushdown', muscle: 'Triceps', tags: [] },
+      ],
+      machines: [
+        { name: 'Machine Chest Press', muscle: 'Chest', tags: [] },
+        { name: 'Pec Deck', muscle: 'Chest', tags: [] },
+        { name: 'Shoulder Press Machine', muscle: 'Shoulders', tags: ['overhead_pressing'] },
+        { name: 'Cable Lateral Raise', muscle: 'Shoulders', tags: [] },
+        { name: 'Tricep Pushdown', muscle: 'Triceps', tags: [] },
+      ],
+    },
+    pull: {
+      dumbbells: [
+        { name: 'Dumbbell Rows', muscle: 'Back', tags: [] },
+        { name: 'Reverse Flyes', muscle: 'Rear Delts', tags: [] },
+        { name: 'Dumbbell Curls', muscle: 'Biceps', tags: [] },
+        { name: 'Hammer Curls', muscle: 'Biceps', tags: [] },
+        { name: 'Dumbbell Shrugs', muscle: 'Traps', tags: [] },
+      ],
+      barbell: [
+        { name: 'Barbell Rows', muscle: 'Back', tags: ['hinge_from_floor'] },
+        { name: 'Barbell Curls', muscle: 'Biceps', tags: [] },
+        { name: 'Barbell Shrugs', muscle: 'Traps', tags: [] },
+        { name: 'Pendlay Rows', muscle: 'Back', tags: ['hinge_from_floor'] },
+      ],
+      bodyweight: [
+        { name: 'Inverted Rows (under table)', muscle: 'Back', tags: ['pull_ups'] },
+        { name: 'Superman Holds', muscle: 'Lower Back', tags: [] },
+        { name: 'Doorframe Rows', muscle: 'Back', tags: [] },
+      ],
+      bands: [
+        { name: 'Banded Rows', muscle: 'Back', tags: [] },
+        { name: 'Banded Face Pulls', muscle: 'Rear Delts', tags: [] },
+        { name: 'Banded Curls', muscle: 'Biceps', tags: [] },
+        { name: 'Banded Pull-Aparts', muscle: 'Rear Delts', tags: [] },
+      ],
+      machines: [
+        { name: 'Lat Pulldown', muscle: 'Back', tags: [] },
+        { name: 'Seated Cable Row', muscle: 'Back', tags: [] },
+        { name: 'Face Pulls (cable)', muscle: 'Rear Delts', tags: [] },
+        { name: 'Machine Curls', muscle: 'Biceps', tags: [] },
+      ],
+    },
+  },
+  lower: {
+    dumbbells: [
+      { name: 'Goblet Squats', muscle: 'Quads', tags: ['deep_knee_bend'] },
+      { name: 'Dumbbell Romanian Deadlifts', muscle: 'Hamstrings', tags: ['hinge_from_floor'] },
+      { name: 'Dumbbell Lunges', muscle: 'Quads/Glutes', tags: ['deep_knee_bend'] },
+      { name: 'Dumbbell Step-Ups', muscle: 'Quads/Glutes', need: ['bench'], tags: [] },
+      { name: 'Dumbbell Calf Raises', muscle: 'Calves', tags: [] },
+      { name: 'Dumbbell Bulgarian Split Squats', muscle: 'Quads/Glutes', tags: ['deep_knee_bend'] },
+      { name: 'Dumbbell Hip Thrusts', muscle: 'Glutes', need: ['bench'], tags: [] },
+      { name: 'Dumbbell Sumo Squats', muscle: 'Quads/Adductors', tags: [] },
+    ],
+    barbell: [
+      { name: 'Barbell Back Squats', muscle: 'Quads', tags: ['deep_knee_bend'] },
+      { name: 'Barbell Deadlifts', muscle: 'Posterior Chain', tags: ['hinge_from_floor'] },
+      { name: 'Barbell Hip Thrusts', muscle: 'Glutes', need: ['bench'], tags: [] },
+      { name: 'Front Squats', muscle: 'Quads', tags: ['deep_knee_bend'] },
+      { name: 'Barbell Lunges', muscle: 'Quads/Glutes', tags: ['deep_knee_bend'] },
+    ],
+    bodyweight: [
+      { name: 'Bodyweight Squats', muscle: 'Quads', tags: ['deep_knee_bend'] },
+      { name: 'Jump Squats', muscle: 'Quads/Power', tags: ['jumping', 'deep_knee_bend'] },
+      { name: 'Walking Lunges', muscle: 'Quads/Glutes', tags: ['deep_knee_bend'] },
+      { name: 'Glute Bridges', muscle: 'Glutes', tags: [] },
+      { name: 'Single-Leg Deadlifts', muscle: 'Hamstrings', tags: [] },
+      { name: 'Wall Sit', muscle: 'Quads', isHold: true, tags: [] },
+      { name: 'Calf Raises', muscle: 'Calves', tags: [] },
+      { name: 'Standing Kickbacks', muscle: 'Glutes', tags: [] },
+    ],
+    bands: [
+      { name: 'Banded Squats', muscle: 'Quads/Glutes', tags: ['deep_knee_bend'] },
+      { name: 'Banded Kickbacks', muscle: 'Glutes', tags: [] },
+      { name: 'Banded Lateral Walks', muscle: 'Glute Med', tags: [] },
+      { name: 'Banded Deadlifts', muscle: 'Hamstrings', tags: ['hinge_from_floor'] },
+      { name: 'Banded Leg Curls', muscle: 'Hamstrings', tags: [] },
+      { name: 'Banded Good Mornings', muscle: 'Hamstrings/Glutes', tags: [] },
+    ],
+    machines: [
+      { name: 'Leg Press', muscle: 'Quads', tags: [] },
+      { name: 'Leg Curl Machine', muscle: 'Hamstrings', tags: [] },
+      { name: 'Leg Extension', muscle: 'Quads', tags: [] },
+      { name: 'Hip Thrust Machine', muscle: 'Glutes', tags: [] },
+      { name: 'Calf Raise Machine', muscle: 'Calves', tags: [] },
+    ],
+  },
+  cardio: [
+    { name: 'Jumping Jacks', muscle: 'Full Body', tags: ['jumping'] },
+    { name: 'Burpees', muscle: 'Full Body', tags: ['jumping', 'push_ups'] },
+    { name: 'Mountain Climbers', muscle: 'Core/Cardio', tags: [] },
+    { name: 'High Knees', muscle: 'Cardio', tags: ['jumping'] },
+    { name: 'Jump Rope (or air rope)', muscle: 'Cardio', tags: ['jumping'] },
+    { name: 'Shadow Boxing', muscle: 'Cardio/Upper', tags: [] },
+    { name: 'Squat Jumps', muscle: 'Legs/Cardio', tags: ['jumping', 'deep_knee_bend'] },
+    { name: 'Step-Ups (fast)', muscle: 'Legs/Cardio', tags: [] },
+    { name: 'Marching in Place', muscle: 'Cardio', tags: [] },
+  ],
+  recovery: [
+    { name: 'Cat-Cow Stretch', muscle: 'Spine', isHold: true, tags: [] },
+    { name: "World's Greatest Stretch", muscle: 'Full Body', isHold: true, tags: [] },
+    { name: 'Pigeon Pose', muscle: 'Hips', isHold: true, tags: [] },
+    { name: '90/90 Hip Stretch', muscle: 'Hips', isHold: true, tags: [] },
+    { name: 'Thread the Needle', muscle: 'Thoracic Spine', isHold: true, tags: [] },
+    { name: 'Foam Roll - Upper Back', muscle: 'Thoracic', isHold: true, tags: [] },
+    { name: 'Foam Roll - Quads/IT Band', muscle: 'Legs', isHold: true, tags: [] },
+    { name: 'Standing Hamstring Stretch', muscle: 'Hamstrings', isHold: true, tags: [] },
+    { name: "Child's Pose", muscle: 'Back/Shoulders', isHold: true, tags: [] },
+    { name: 'Supine Spinal Twist', muscle: 'Spine', isHold: true, tags: [] },
+    { name: 'Deep Squat Hold', muscle: 'Hips/Ankles', isHold: true, tags: ['deep_knee_bend'] },
+    { name: 'Doorway Chest Stretch', muscle: 'Chest', isHold: true, tags: [] },
+  ],
+  core: [
+    { name: 'Plank', muscle: 'Core', isHold: true, tags: [] },
+    { name: 'Dead Bugs', muscle: 'Core', tags: [] },
+    { name: 'Bicycle Crunches', muscle: 'Core', tags: [] },
+    { name: 'Pallof Press', muscle: 'Core', needEquip: ['bands'], tags: [] },
+    { name: 'Russian Twists', muscle: 'Obliques', tags: [] },
+    { name: 'Leg Raises', muscle: 'Lower Abs', tags: [] },
+  ],
+};
+
+// Injury-area -> restriction mapping
+const INJURY_RESTRICTIONS = {
+  shoulder: ['overhead_pressing'],
+  elbow: ['push_ups', 'pull_ups'],
+  wrist: ['push_ups'],
+  lower_back: ['hinge_from_floor'],
+  hip: ['deep_knee_bend'],
+  knee: ['deep_knee_bend', 'jumping'],
+  ankle: ['jumping', 'running'],
+};
+
+// Rehab / mobility suggestions per area
+const MOBILITY_SUGGESTIONS = {
+  shoulder: [
+    { name: 'Shoulder Circles', detail: '2 sets x 10 each direction' },
+    { name: 'Band Pull-Aparts (light)', detail: '2 sets x 15, slow and controlled' },
+    { name: 'Wall Slides', detail: '2 sets x 10, focus on scapular control' },
+  ],
+  elbow: [
+    { name: 'Wrist Flexor / Extensor Stretch', detail: '30s hold each side' },
+    { name: 'Forearm Pronation / Supination', detail: 'Light weight, 2 x 15' },
+  ],
+  wrist: [
+    { name: 'Wrist Circles', detail: '10 each direction' },
+    { name: 'Prayer / Reverse Prayer Stretch', detail: '30s each' },
+  ],
+  lower_back: [
+    { name: 'Cat-Cow', detail: '10 slow reps, focus on breathing' },
+    { name: 'Bird-Dogs', detail: '2 sets x 8 each side' },
+    { name: 'Pelvic Tilts', detail: '2 sets x 12' },
+  ],
+  hip: [
+    { name: '90/90 Hip Switches', detail: '2 sets x 8 each side' },
+    { name: 'Hip CARs (Controlled Articular Rotations)', detail: '5 each direction' },
+    { name: 'Banded Clamshells', detail: '2 sets x 15' },
+  ],
+  knee: [
+    { name: 'Quad Sets (isometric)', detail: '3 x 10s hold' },
+    { name: 'Terminal Knee Extensions (band)', detail: '2 x 15 light' },
+    { name: 'Straight Leg Raises', detail: '2 x 12 each side' },
+  ],
+  ankle: [
+    { name: 'Ankle Circles', detail: '10 each direction each foot' },
+    { name: 'Calf Raises (slow eccentric)', detail: '2 x 12' },
+    { name: 'Banded Ankle Dorsiflexion', detail: '2 x 15 each side' },
+  ],
+};
+
+// Meal database
+const MEAL_DB = {
+  chicken: { cal: 165, pro: 31, per: '100g', category: 'protein', meals: ['Grilled chicken breast with roasted vegetables', 'Chicken stir-fry with rice', 'Chicken salad with spinach and almonds'] },
+  eggs: { cal: 155, pro: 13, per: '2 eggs', category: 'protein', meals: ['Scrambled eggs with spinach', 'Veggie omelette', 'Hard-boiled eggs with toast'] },
+  rice: { cal: 206, pro: 4, per: '1 cup cooked', category: 'carb', meals: ['Rice bowl with protein and veggies', 'Fried rice with eggs'] },
+  oats: { cal: 150, pro: 5, per: '1/2 cup dry', category: 'carb', meals: ['Overnight oats with banana and nuts', 'Protein oatmeal'] },
+  banana: { cal: 105, pro: 1.3, per: '1 medium', category: 'fruit', meals: ['Banana smoothie', 'Banana with peanut butter'] },
+  bananas: { cal: 105, pro: 1.3, per: '1 medium', category: 'fruit', meals: ['Banana smoothie', 'Banana with peanut butter'] },
+  spinach: { cal: 23, pro: 2.9, per: '1 cup', category: 'vegetable', meals: ['Spinach salad', 'Sauteed spinach with garlic'] },
+  yogurt: { cal: 100, pro: 17, per: '170g', category: 'protein', meals: ['Greek yogurt with berries and granola', 'Yogurt parfait'] },
+  'greek yogurt': { cal: 100, pro: 17, per: '170g', category: 'protein', meals: ['Greek yogurt with berries and granola', 'Yogurt parfait with nuts'] },
+  almonds: { cal: 164, pro: 6, per: '1 oz', category: 'fat', meals: ['Trail mix', 'Almond butter on toast'] },
+  salmon: { cal: 208, pro: 20, per: '100g', category: 'protein', meals: ['Baked salmon with asparagus', 'Salmon rice bowl'] },
+  bread: { cal: 79, pro: 3, per: '1 slice', category: 'carb', meals: ['Toast with avocado and eggs', 'Turkey sandwich'] },
+  toast: { cal: 79, pro: 3, per: '1 slice', category: 'carb', meals: ['Toast with avocado and eggs', 'Peanut butter toast with banana'] },
+  avocado: { cal: 240, pro: 3, per: '1 whole', category: 'fat', meals: ['Avocado toast with eggs', 'Guacamole with veggies'] },
+  pasta: { cal: 220, pro: 8, per: '1 cup cooked', category: 'carb', meals: ['Pasta with chicken and vegetables', 'Pasta with marinara and turkey'] },
+  beef: { cal: 250, pro: 26, per: '100g', category: 'protein', meals: ['Beef stir-fry with vegetables', 'Lean beef burger with salad'] },
+  tofu: { cal: 144, pro: 17, per: '100g', category: 'protein', meals: ['Tofu stir-fry with vegetables', 'Crispy tofu bowl with rice'] },
+  beans: { cal: 227, pro: 15, per: '1 cup', category: 'protein', meals: ['Bean and rice bowl', 'Bean salad with veggies'] },
+  broccoli: { cal: 55, pro: 3.7, per: '1 cup', category: 'vegetable', meals: ['Steamed broccoli with chicken', 'Broccoli stir-fry'] },
+  turkey: { cal: 135, pro: 30, per: '100g', category: 'protein', meals: ['Turkey lettuce wraps', 'Ground turkey bowl with rice'] },
+  milk: { cal: 149, pro: 8, per: '1 cup', category: 'protein', meals: ['Protein smoothie with milk', 'Cereal with milk'] },
+  cheese: { cal: 113, pro: 7, per: '1 oz', category: 'fat', meals: ['Cheese omelette', 'Cottage cheese with fruit'] },
+  'peanut butter': { cal: 188, pro: 8, per: '2 tbsp', category: 'fat', meals: ['PB&J on whole wheat', 'Apple with peanut butter'] },
+  quinoa: { cal: 222, pro: 8, per: '1 cup cooked', category: 'carb', meals: ['Quinoa bowl with chicken and veggies', 'Quinoa salad'] },
+  apple: { cal: 95, pro: 0.5, per: '1 medium', category: 'fruit', meals: ['Apple with peanut butter', 'Apple slices with almonds'] },
+  berries: { cal: 85, pro: 1, per: '1 cup', category: 'fruit', meals: ['Berry smoothie', 'Greek yogurt with mixed berries'] },
+  'frozen berries': { cal: 85, pro: 1, per: '1 cup', category: 'fruit', meals: ['Berry smoothie', 'Greek yogurt with mixed berries'] },
+  tuna: { cal: 132, pro: 29, per: '1 can', category: 'protein', meals: ['Tuna salad on whole wheat', 'Tuna rice bowl'] },
+  shrimp: { cal: 99, pro: 24, per: '100g', category: 'protein', meals: ['Shrimp stir-fry', 'Garlic shrimp with rice'] },
+  lentils: { cal: 230, pro: 18, per: '1 cup cooked', category: 'protein', meals: ['Lentil soup', 'Lentil bowl with rice and spinach'] },
+  'cottage cheese': { cal: 206, pro: 28, per: '1 cup', category: 'protein', meals: ['Cottage cheese with berries', 'Cottage cheese on toast'] },
+  'protein powder': { cal: 120, pro: 24, per: '1 scoop', category: 'protein', meals: ['Protein shake with banana', 'Protein oatmeal'] },
+  tortillas: { cal: 150, pro: 4, per: '1 large', category: 'carb', meals: ['Chicken wrap with spinach', 'Egg and cheese breakfast wrap', 'Chicken burrito bowl on a tortilla'] },
+};
+
+const SNACKS = {
+  pre: [
+    { text: 'Banana with a tablespoon of peanut butter', detail: '~200 cal, 5g protein, quick energy', foods: ['banana','bananas','peanut butter'] },
+    { text: 'Greek yogurt with a drizzle of honey', detail: '~150 cal, 17g protein', foods: ['yogurt','greek yogurt'] },
+    { text: 'Oatmeal with banana slices', detail: '~250 cal, 6g protein, sustained energy', foods: ['oats','banana','bananas'] },
+    { text: 'Toast with scrambled eggs', detail: '~230 cal, 15g protein', foods: ['bread','toast','eggs'] },
+    { text: 'Apple slices with almond butter', detail: '~200 cal, 4g protein', foods: ['apple','almonds'] },
+    { text: 'Rice cake with peanut butter and banana', detail: '~220 cal, 6g protein', foods: ['rice','peanut butter','banana','bananas'] },
+    { text: 'Small handful of almonds and a banana', detail: '~270 cal, 7g protein', foods: ['almonds','banana','bananas'] },
+    { text: 'Egg wrap with spinach', detail: '~250 cal, 16g protein', foods: ['eggs','tortillas','spinach'] },
+  ],
+  post: [
+    { text: 'Protein shake with banana and milk', detail: '~300 cal, 30g protein, fast recovery', foods: ['protein powder','banana','bananas','milk'] },
+    { text: 'Greek yogurt parfait with berries and almonds', detail: '~250 cal, 20g protein', foods: ['yogurt','greek yogurt','berries','frozen berries','almonds'] },
+    { text: 'Scrambled eggs on toast', detail: '~280 cal, 18g protein', foods: ['eggs','bread','toast'] },
+    { text: 'Chicken and rice (small portion)', detail: '~300 cal, 25g protein', foods: ['chicken','rice'] },
+    { text: 'Cottage cheese with fruit', detail: '~200 cal, 28g protein', foods: ['cottage cheese','berries','banana','bananas'] },
+    { text: 'Tuna on crackers', detail: '~200 cal, 20g protein', foods: ['tuna'] },
+    { text: 'Greek yogurt with frozen berries', detail: '~180 cal, 18g protein', foods: ['greek yogurt','yogurt','frozen berries','berries'] },
+  ],
+};
+
+// ============================================================
+// SCHEDULE ENGINE
+// ============================================================
+function parseBlocks(str) {
+  if (!str || !str.trim()) return [];
+  return str.split(',').map(b => {
+    const m = b.trim().match(/(\d{1,2})(?::(\d{2}))?\s*-\s*(\d{1,2})(?::(\d{2}))?/);
+    if (!m) return null;
+    return { start: parseInt(m[1]) + (m[2] ? parseInt(m[2])/60 : 0), end: parseInt(m[3]) + (m[4] ? parseInt(m[4])/60 : 0) };
+  }).filter(Boolean);
+}
+
+function timeToHour(t) { const [h,m] = t.split(':').map(Number); return h + m/60; }
+
+function generateScheduleRec(params) {
+  const { wakeTime, sleepTime, blocks, prefWindow, stress, energy, soreness, timeMin } = params;
+  const wake = timeToHour(wakeTime || '07:00');
+  const sleep = timeToHour(sleepTime || '23:00');
+  const busy = parseBlocks(blocks);
+  const dur = (timeMin || 45) / 60;
+
+  // Score each possible hour slot
+  const windowPref = {
+    early_morning: [6,8], late_morning: [9,11], afternoon: [12,15], evening: [16,20], no_preference: null,
+  };
+  const pref = windowPref[prefWindow] || null;
+
+  const candidates = [];
+  for (let h = Math.ceil(wake); h <= Math.floor(sleep) - dur; h += 0.5) {
+    const slotEnd = h + dur;
+    const conflict = busy.some(b => h < b.end && slotEnd > b.start);
+    if (conflict) continue;
+    let score = 50;
+    // Prefer preferred window
+    if (pref && h >= pref[0] && h < pref[1]) score += 30;
+    // Prefer mid-day for energy
+    if (h >= 9 && h <= 17) score += 10;
+    // Slight preference for not-too-early/not-too-late
+    if (h >= 7 && h <= 19) score += 5;
+    // Prefer some buffer after wake
+    if (h - wake >= 1) score += 5;
+    candidates.push({ hour: h, score });
+  }
+
+  candidates.sort((a, b) => b.score - a.score);
+
+  // Determine effort level
+  let effort = 'high';
+  if (energy === 'tired' || stress === 'high' || soreness === 'full_body') effort = 'light';
+  else if (energy === 'sore' || stress === 'high') effort = 'light';
+  else if (energy === 'okay' && stress === 'medium') effort = 'moderate';
+  else if (stress === 'medium' || soreness === 'upper_body' || soreness === 'lower_body') effort = 'moderate';
+  else if (energy === 'great' && stress === 'low') effort = 'high';
+  else effort = 'moderate';
+
+  // If very stressed/tired and no great slot, suggest minimum effective
+  const noGoodSlot = candidates.length === 0 || (candidates[0].score < 50);
+  if ((effort === 'light' && noGoodSlot) || candidates.length === 0) {
+    effort = 'minimum_effective';
+  }
+
+  const fmt = (h) => { const hr = Math.floor(h); const mn = Math.round((h-hr)*60); return `${hr}:${mn.toString().padStart(2,'0')}`; };
+
+  const primary = candidates[0] || { hour: wake + 1 };
+  const backup = candidates[1] || candidates[0] || { hour: wake + 2 };
+
+  let reason = '';
+  if (pref && candidates[0]?.score >= 80) reason = `Fits your preferred window and is clear of schedule conflicts.`;
+  else if (candidates.length > 0) reason = `Best open slot around your busy blocks, with time to prepare.`;
+  else reason = `Your schedule is packed today. Consider a quick minimum-effective session whenever you can fit it.`;
+
+  return {
+    recommendedTime: fmt(primary.hour),
+    backupTime: fmt(backup.hour),
+    reason,
+    effort,
+    effortLabel: { high: 'High Effort', moderate: 'Moderate Effort', light: 'Light Session', minimum_effective: 'Minimum Effective Session' }[effort],
+  };
+}
+
+// ============================================================
+// INJURY FILTER
+// ============================================================
+function getActiveRestrictions(injuryAreas, explicitRestrictions) {
+  const r = new Set(explicitRestrictions || []);
+  for (const area of (injuryAreas || [])) {
+    if (area === 'none') continue;
+    (INJURY_RESTRICTIONS[area] || []).forEach(x => r.add(x));
+  }
+  return r;
+}
+
+function filterByRestrictions(exercises, restrictions) {
+  if (!restrictions || restrictions.size === 0) return exercises;
+  return exercises.filter(ex => {
+    const tags = ex.tags || [];
+    return !tags.some(t => restrictions.has(t));
+  });
+}
+
+function getAdjustmentNotes(injuryAreas, restrictions) {
+  const notes = [];
+  if (restrictions.has('overhead_pressing')) notes.push('Overhead pressing swapped for lateral/incline variations to reduce shoulder load.');
+  if (restrictions.has('deep_knee_bend')) notes.push('Deep knee bends replaced with partial-range or hip-dominant movements.');
+  if (restrictions.has('jumping')) notes.push('High-impact/jumping movements removed and replaced with low-impact cardio.');
+  if (restrictions.has('hinge_from_floor')) notes.push('Floor hinges replaced with hip thrusts, machine, or supported row variations.');
+  if (restrictions.has('push_ups')) notes.push('Push-up variations replaced with press or machine alternatives.');
+  if (restrictions.has('pull_ups')) notes.push('Pull-up variations replaced with rows or machine pulldowns.');
+  if (restrictions.has('running')) notes.push('Running replaced with low-impact cardio alternatives.');
+  return notes;
+}
+
+function getMobilitySuggestions(injuryAreas, rehabPref) {
+  if (rehabPref === 'avoid') return [];
+  const suggestions = [];
+  for (const area of injuryAreas) {
+    if (area === 'none') continue;
+    const items = MOBILITY_SUGGESTIONS[area] || [];
+    if (rehabPref === 'mobility') suggestions.push(...items.slice(0, 2));
+    else suggestions.push(...items);
+  }
+  return suggestions;
+}
+
+// ============================================================
+// WORKOUT GENERATOR (upgraded)
+// ============================================================
+function getEquipment() {
+  return Array.from(document.querySelectorAll('#equipmentChips .chip.selected')).map(c => c.dataset.val);
+}
+function getChipValues(id) {
+  return Array.from(document.querySelectorAll(`#${id} .chip.selected`)).map(c => c.dataset.val);
+}
+
+function pickExercises(pool, count) {
+  const shuffled = [...pool].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, count);
+}
+
+function hasEquip(exercise, equipment) {
+  if (exercise.need) return exercise.need.every(n => equipment.includes(n));
+  if (exercise.needEquip) return exercise.needEquip.some(n => equipment.includes(n));
+  return true;
+}
+
+function getSubstitution(exercise, equipment) {
+  if (hasEquip(exercise, equipment)) return null;
+  const missing = (exercise.need || []).filter(n => !equipment.includes(n));
+  if (missing.includes('bench')) {
+    if (exercise.name.includes('Press') && exercise.muscle === 'Chest') return 'Floor press or push-ups instead';
+    if (exercise.name.includes('Step-Up')) return 'Lunges instead';
+    return 'Use floor variation';
+  }
+  return null;
+}
+
+function generateWorkout(params) {
+  const { goal, time, energy, focus, equipment, restrictions, stress, soreness } = params;
+  const timeMin = parseInt(time);
+
+  if (focus === 'recovery') return generateRecoveryWorkout(Math.floor(timeMin / 3), energy);
+  if (focus === 'cardio') return generateCardioWorkout(timeMin, energy, restrictions);
+
+  // Scheme
+  const schemes = {
+    build_muscle: { sets: 4, reps: '8-12', rest: '90s' },
+    lose_fat: { sets: 3, reps: '12-15', rest: '45s' },
+    recomposition: { sets: 3, reps: '10-12', rest: '60s' },
+    strength: { sets: 5, reps: '3-5', rest: '2-3 min' },
+    general: { sets: 3, reps: '10-15', rest: '60s' },
+  };
+  const scheme = schemes[goal] || schemes.general;
+  let { sets, reps, rest } = scheme;
+
+  // Adjust for energy / stress / soreness
+  const isLow = energy === 'tired' || energy === 'sore' || stress === 'high' || soreness === 'full_body';
+  const isMed = stress === 'medium' || soreness === 'upper_body' || soreness === 'lower_body';
+
+  if (isLow) {
+    sets = Math.max(2, sets - 1);
+    rest = '90s (take your time)';
+    reps = reps.replace(/(\d+)-(\d+)/, (m, a, b) => `${Math.max(1, +a - 2)}-${Math.max(2, +b - 2)}`);
+  } else if (isMed) {
+    sets = Math.max(2, sets - 1);
+  } else if (energy === 'great' && stress === 'low') {
+    if (goal !== 'strength') sets = Math.min(5, sets + 1);
+  }
+
+  // Exercise count
+  const timePerEx = (parseInt(rest) || 60) > 90 ? 7 : 5;
+  let exerciseCount = Math.max(3, Math.floor((timeMin - 5) / timePerEx));
+  // Compressed for 20 min
+  if (timeMin <= 20) exerciseCount = Math.min(exerciseCount, 4);
+
+  // Gather and filter by restrictions
+  let exercises = [];
+  if (focus === 'full_body') {
+    let pushPool = filterByRestrictions(gatherExercises('push', equipment), restrictions);
+    let pullPool = filterByRestrictions(gatherExercises('pull', equipment), restrictions);
+    let lowerPool = filterByRestrictions(gatherLowerExercises(equipment), restrictions);
+    const pc = Math.ceil(exerciseCount / 3), plc = Math.ceil(exerciseCount / 3);
+    exercises = [...pickExercises(pushPool, pc), ...pickExercises(pullPool, plc), ...pickExercises(lowerPool, Math.max(1, exerciseCount - pc - plc))];
+  } else if (focus === 'upper') {
+    let pushPool = filterByRestrictions(gatherExercises('push', equipment), restrictions);
+    let pullPool = filterByRestrictions(gatherExercises('pull', equipment), restrictions);
+    const h = Math.ceil(exerciseCount / 2);
+    exercises = [...pickExercises(pushPool, h), ...pickExercises(pullPool, exerciseCount - h)];
+  } else if (focus === 'lower') {
+    exercises = pickExercises(filterByRestrictions(gatherLowerExercises(equipment), restrictions), exerciseCount);
+  } else if (focus === 'push') {
+    exercises = pickExercises(filterByRestrictions(gatherExercises('push', equipment), restrictions), exerciseCount);
+  } else if (focus === 'pull') {
+    exercises = pickExercises(filterByRestrictions(gatherExercises('pull', equipment), restrictions), exerciseCount);
+  }
+
+  const corePool = filterByRestrictions(EXERCISES.core.filter(e => !e.needEquip || e.needEquip.some(n => equipment.includes(n))), restrictions);
+  const coreExercises = pickExercises(corePool, timeMin <= 20 ? 1 : 2);
+
+  const workout = exercises.map(ex => ({
+    name: ex.name, muscle: ex.muscle,
+    sets, reps: ex.isHold ? '30-45s hold' : reps, rest,
+    substitution: getSubstitution(ex, equipment),
+  }));
+
+  // Workout title
+  const focusLabels = { full_body:'Full Body', upper:'Upper Body', lower:'Lower Body', push:'Push', pull:'Pull' };
+  const intentLabels = { build_muscle:'Hypertrophy', lose_fat:'Fat-Loss Efficiency', recomposition:'Recomp', strength:'Performance', general:'General Fitness' };
+  let title = `${focusLabels[focus]||focus} ${intentLabels[goal]||''}`.trim();
+  if (timeMin <= 20) title += ' (Express)';
+  if (isLow) title += ' - Light Session';
+
+  return {
+    title,
+    warmup: { name: 'Dynamic Warmup', detail: 'Arm circles, leg swings, hip circles, light cardio', duration: timeMin <= 20 ? '3 min' : '5 min' },
+    exercises: workout,
+    core: coreExercises.map(ex => ({ name: ex.name, muscle: ex.muscle, sets: 3, reps: ex.isHold ? '30-45s hold' : '12-15', rest: '30s' })),
+    cooldown: timeMin <= 20 ? '2 min light stretching' : '3-5 min light stretching and deep breathing',
+    totalTime: timeMin,
+    trainingIntent: intentLabels[goal] || 'General Fitness',
+    intensityNote: getIntensityNote(energy, goal, stress, soreness),
+    recoveryNote: getRecoveryNote(energy, stress, soreness),
+    isCircuit: timeMin <= 20 && goal === 'lose_fat',
+  };
+}
+
+function gatherExercises(type, equipment) {
+  const pool = [];
+  const src = EXERCISES.upper[type];
+  for (const equip of equipment) {
+    if (src[equip]) pool.push(...src[equip].filter(e => hasEquip(e, equipment)));
+  }
+  if (!equipment.includes('bodyweight') && pool.length < 3) {
+    pool.push(...(src.bodyweight || []).filter(e => hasEquip(e, equipment)));
+  }
+  return pool;
+}
+
+function gatherLowerExercises(equipment) {
+  const pool = [];
+  for (const equip of equipment) {
+    if (EXERCISES.lower[equip]) pool.push(...EXERCISES.lower[equip].filter(e => hasEquip(e, equipment)));
+  }
+  if (!equipment.includes('bodyweight') && pool.length < 3) {
+    pool.push(...EXERCISES.lower.bodyweight.filter(e => hasEquip(e, equipment)));
+  }
+  return pool;
+}
+
+function generateRecoveryWorkout(count, energy) {
+  const exercises = pickExercises(EXERCISES.recovery, Math.min(count, 10));
+  return {
+    title: 'Recovery & Mobility',
+    warmup: { name: 'Gentle Movement', detail: 'Slow walk in place, deep breathing, gentle arm swings', duration: '3 min' },
+    exercises: exercises.map(ex => ({ name: ex.name, muscle: ex.muscle, sets: 2, reps: '30-60s hold each side', rest: 'Flow between' })),
+    core: [], cooldown: '5 min deep breathing and meditation', totalTime: count * 3,
+    trainingIntent: 'Recovery / Movement',
+    intensityNote: "Focus on deep breathing and gentle movement. This is active recovery - don't push through pain.",
+    recoveryNote: 'Listen to your body. Any sharp pain means stop that movement.',
+  };
+}
+
+function generateCardioWorkout(timeMin, energy, restrictions) {
+  const exCount = energy === 'tired' ? 4 : energy === 'sore' ? 3 : 5;
+  let pool = filterByRestrictions(EXERCISES.cardio, restrictions);
+  if (pool.length < 3) pool = EXERCISES.cardio.filter(e => !(e.tags||[]).some(t => restrictions.has(t)));
+  if (pool.length < 2) pool = [{ name: 'Marching in Place', muscle: 'Cardio', tags: [] }, { name: 'Shadow Boxing', muscle: 'Cardio/Upper', tags: [] }, { name: 'Mountain Climbers', muscle: 'Core/Cardio', tags: [] }];
+  const exercises = pickExercises(pool, Math.min(exCount, pool.length));
+  const workTime = energy === 'great' ? '40s' : energy === 'tired' ? '20s' : '30s';
+  const restTime = energy === 'great' ? '20s' : energy === 'tired' ? '40s' : '30s';
+  const rounds = Math.max(2, Math.min(5, Math.floor((timeMin - 5) / exCount)));
+  return {
+    title: 'Cardio Circuit' + (timeMin <= 20 ? ' (Express)' : ''),
+    warmup: { name: 'Light Cardio Warmup', detail: 'March in place, arm circles, gentle movement', duration: '3 min' },
+    exercises: exercises.map(ex => ({ name: ex.name, muscle: ex.muscle, sets: `${rounds} rounds`, reps: workTime + ' work', rest: restTime + ' rest' })),
+    core: [], cooldown: '5 min walking and stretching', totalTime: timeMin,
+    trainingIntent: 'Fat-Loss Efficiency',
+    intensityNote: getIntensityNote(energy, 'lose_fat', 'low', 'none'),
+    recoveryNote: '', isCircuit: true,
+  };
+}
+
+function getIntensityNote(energy, goal, stress, soreness) {
+  if (energy === 'tired' || stress === 'high') return "Low energy today - that's okay. Reduced volume will still drive progress. Focus on quality reps over quantity.";
+  if (energy === 'sore' || soreness === 'full_body') return "Your body is recovering. Today's lighter session supports recovery while keeping you active. Prioritize stretching between sets.";
+  if (energy === 'great' && stress === 'low') {
+    const m = { build_muscle: 'Push for progressive overload - try to increase weight or reps from last session.', lose_fat: 'Keep rest periods short and intensity high for maximum calorie burn.', strength: 'Great day to test heavier weights. Focus on clean form with maximal effort.', recomposition: 'Push hard today - aim for the top of each rep range.', general: 'Challenge yourself with slightly heavier weights or faster tempo.' };
+    return "You're feeling great! " + (m[goal] || m.general);
+  }
+  return 'Solid day for consistent training. Focus on mind-muscle connection and good form.';
+}
+
+function getRecoveryNote(energy, stress, soreness) {
+  const parts = [];
+  if (stress === 'high') parts.push('High stress detected - consider adding 5 min of deep breathing after your workout.');
+  if (soreness === 'upper_body') parts.push('Upper body soreness noted - extra stretching for shoulders and chest recommended.');
+  if (soreness === 'lower_body') parts.push('Lower body soreness noted - gentle foam rolling and hip stretches recommended.');
+  if (soreness === 'full_body') parts.push('Full body soreness - prioritize sleep and hydration tonight.');
+  if (energy === 'tired') parts.push('Consider an earlier bedtime tonight for better recovery.');
+  return parts.join(' ');
+}
+
+// ============================================================
+// MEAL GENERATOR
+// ============================================================
+function generateMealPlan(params) {
+  const { foods, goal, calories, protein } = params;
+  const foodList = (foods || '').toLowerCase().split(/[,\n]+/).map(f => f.trim()).filter(Boolean);
+  const matched = [], unmatched = [];
+  for (const food of foodList) {
+    const key = Object.keys(MEAL_DB).find(k => food.includes(k) || k.includes(food));
+    if (key) matched.push({ key, ...MEAL_DB[key] }); else unmatched.push(food);
+  }
+  const calTarget = calories || getDefaultCalories(goal);
+  const proTarget = protein || getDefaultProtein(goal, calTarget);
+  const proteins = matched.filter(f => f.category === 'protein');
+  const carbs = matched.filter(f => f.category === 'carb');
+  const vegs = matched.filter(f => f.category === 'vegetable');
+  const fruits = matched.filter(f => f.category === 'fruit');
+  const mealCalTarget = Math.floor(calTarget * 0.3);
+
+  const meals = [
+    buildMeal('Breakfast', proteins[0], carbs[0], fruits[0], mealCalTarget, goal),
+    buildMeal('Lunch', proteins[1] || proteins[0], carbs[1] || carbs[0], vegs[0], mealCalTarget, goal),
+    buildMeal('Dinner', proteins[2] || proteins[0], carbs[carbs.length > 1 ? 1 : 0], vegs[1] || vegs[0], mealCalTarget, goal),
+  ];
+
+  // Best next meal
+  let bestNext = 'A balanced meal with lean protein and vegetables';
+  if (proteins.length > 0) bestNext = `${proteins[0].key.charAt(0).toUpperCase()+proteins[0].key.slice(1)} with ${carbs[0]?.key || 'vegetables'} - quick, high-protein option`;
+
+  return {
+    meals,
+    preSnack: pickSnack('pre', foodList),
+    postSnack: pickSnack('post', foodList),
+    bestNextMeal: bestNext,
+    targets: { calories: calTarget, protein: proTarget },
+    estimatedTotals: estimateTotals(meals),
+    unmatchedFoods: unmatched,
+  };
+}
+
+function buildMeal(name, protein, carb, extra, calTarget, goal) {
+  let description = '', cal = 0, pro = 0;
+  if (protein) { description = protein.meals[Math.floor(Math.random() * protein.meals.length)]; cal += protein.cal; pro += protein.pro; }
+  if (carb) { if (!description) description = carb.meals[Math.floor(Math.random() * carb.meals.length)]; cal += carb.cal; pro += carb.pro; }
+  if (extra) { cal += extra.cal; pro += extra.pro; }
+  if (!description) description = name === 'Breakfast' ? 'Balanced breakfast with available ingredients' : name === 'Lunch' ? 'Balanced lunch with lean protein and vegetables' : 'Balanced dinner with protein and complex carbs';
+  let note = '';
+  if (goal === 'build_muscle' || goal === 'recomposition') note = 'Prioritize the protein portion';
+  else if (goal === 'lose_fat') note = 'Use smaller carb portion, extra vegetables';
+  else if (goal === 'strength') note = 'Generous portions for recovery';
+  return { name, description, cal: cal || calTarget, pro: pro || 20, note };
+}
+
+function pickSnack(timing, foodList) {
+  const pool = SNACKS[timing];
+  const matching = pool.filter(s => s.foods.some(f => foodList.some(uf => uf.includes(f) || f.includes(uf))));
+  const pick = matching.length > 0 ? matching[Math.floor(Math.random() * matching.length)] : pool[Math.floor(Math.random() * pool.length)];
+  return { text: pick.text, detail: pick.detail };
+}
+
+function getDefaultCalories(goal) { return { build_muscle: 2500, lose_fat: 1800, recomposition: 2100, strength: 2600, general: 2200 }[goal] || 2200; }
+function getDefaultProtein(goal, cal) { const r = { build_muscle: 0.35, lose_fat: 0.40, recomposition: 0.35, strength: 0.30, general: 0.25 }[goal] || 0.25; return Math.round((cal * r) / 4); }
+function estimateTotals(meals) { return { calories: meals.reduce((s,m) => s+m.cal, 0) + 400, protein: meals.reduce((s,m) => s+m.pro, 0) + 25 }; }
+
+// ============================================================
+// DEMO MODE
+// ============================================================
+const DEMO_PROFILE = {
+  goal: 'recomposition', time: '45', energy: 'okay', focus: 'lower',
+  equipment: ['dumbbells', 'bench', 'bands', 'bodyweight'],
+  foods: 'eggs, greek yogurt, rice, chicken, oats, bananas, frozen berries, spinach, tortillas',
+  calories: 2100, protein: 160,
+  wakeTime: '07:00', sleepTime: '23:00',
+  scheduleBlocks: '9-12, 13:30-16',
+  prefWindow: 'evening', stress: 'medium',
+  eatBefore: 'yes', eatAfter: 'yes',
+  soreness: ['none'],
+  injuries: ['knee'], injurySeverity: 'mild', rehabPref: 'mobility',
+  restrictions: ['jumping', 'deep_knee_bend'],
+};
+
+const STATIC_OUTPUT = {
+  schedule: {
+    recommendedTime: '16:30', backupTime: '12:00',
+    reason: 'Best open slot after your afternoon commitments, with time to eat before and recover after.',
+    effort: 'moderate', effortLabel: 'Moderate Effort',
+  },
+  workout: {
+    title: 'Lower Body Recomp - Knee-Friendly',
+    warmup: { name: 'Dynamic Warmup', detail: 'Leg swings, hip circles, banded lateral walks, calf raises', duration: '5 min' },
+    exercises: [
+      { name: 'Dumbbell Hip Thrusts', muscle: 'Glutes', sets: 3, reps: '10-12', rest: '60s', substitution: null },
+      { name: 'Dumbbell Sumo Squats', muscle: 'Quads/Adductors', sets: 3, reps: '10-12', rest: '60s', substitution: null },
+      { name: 'Dumbbell Step-Ups', muscle: 'Quads/Glutes', sets: 3, reps: '10-12', rest: '60s', substitution: null },
+      { name: 'Banded Lateral Walks', muscle: 'Glute Med', sets: 3, reps: '10-12', rest: '60s', substitution: null },
+      { name: 'Banded Kickbacks', muscle: 'Glutes', sets: 3, reps: '10-12', rest: '60s', substitution: null },
+      { name: 'Dumbbell Calf Raises', muscle: 'Calves', sets: 3, reps: '12-15', rest: '45s', substitution: null },
+      { name: 'Single-Leg Deadlifts', muscle: 'Hamstrings', sets: 3, reps: '10-12', rest: '60s', substitution: null },
+    ],
+    core: [{ name: 'Dead Bugs', muscle: 'Core', sets: 3, reps: '12-15', rest: '30s' }],
+    cooldown: '3-5 min light stretching and deep breathing', totalTime: 45,
+    trainingIntent: 'Recomp', intensityNote: 'Solid day for consistent training. Focus on mind-muscle connection and good form.',
+    recoveryNote: '', isCircuit: false,
+  },
+  meal: {
+    meals: [
+      { name: 'Breakfast', description: 'Protein oatmeal with banana slices and frozen berries', cal: 380, pro: 28, note: 'Prioritize the protein portion' },
+      { name: 'Lunch', description: 'Chicken and rice bowl with sauteed spinach', cal: 520, pro: 42, note: 'Prioritize the protein portion' },
+      { name: 'Dinner', description: 'Egg and cheese breakfast wrap with spinach on a tortilla', cal: 420, pro: 26, note: 'Prioritize the protein portion' },
+    ],
+    preSnack: { text: 'Greek yogurt with frozen berries', detail: '~180 cal, 18g protein' },
+    postSnack: { text: 'Scrambled eggs on toast', detail: '~280 cal, 18g protein' },
+    bestNextMeal: 'Chicken with rice - quick, high-protein option',
+    targets: { calories: 2100, protein: 160 },
+    estimatedTotals: { calories: 1920, protein: 131 },
+    unmatchedFoods: [],
+  },
+  adjustmentNotes: ['Deep knee bends replaced with partial-range or hip-dominant movements.', 'High-impact/jumping movements removed and replaced with low-impact cardio.'],
+  mobilitySuggestions: [{ name: 'Quad Sets (isometric)', detail: '3 x 10s hold' }, { name: 'Terminal Knee Extensions (band)', detail: '2 x 15 light' }],
+};
+
+// ============================================================
+// UI STATE
+// ============================================================
+let demoMode = false, presenterMode = false, presenterStep = -1;
+let currentParams = {}, currentWorkout = null, currentMeal = null, currentSchedule = null, currentAdjNotes = [], currentMobility = [];
+
+// Chip groups - mutual exclusion for soreness "none"
+function setupChipGroup(groupId, exclusive) {
+  document.querySelectorAll(`#${groupId} .chip`).forEach(chip => {
+    chip.addEventListener('click', () => {
+      if (exclusive && chip.dataset.val === 'none') {
+        document.querySelectorAll(`#${groupId} .chip`).forEach(c => c.classList.remove('selected'));
+        chip.classList.add('selected');
+      } else if (exclusive) {
+        document.querySelector(`#${groupId} .chip[data-val="none"]`)?.classList.remove('selected');
+        chip.classList.toggle('selected');
+        if (document.querySelectorAll(`#${groupId} .chip.selected`).length === 0)
+          document.querySelector(`#${groupId} .chip[data-val="none"]`)?.classList.add('selected');
+      } else {
+        chip.classList.toggle('selected');
+      }
+    });
+  });
+}
+setupChipGroup('equipmentChips', false);
+setupChipGroup('sorenessChips', true);
+setupChipGroup('injuryChips', true);
+setupChipGroup('restrictionChips', false);
+
+function toggleDemo() {
+  demoMode = !demoMode;
+  document.getElementById('demoBtn').classList.toggle('active', demoMode);
+  if (!demoMode) return;
+  const d = DEMO_PROFILE;
+  document.getElementById('goal').value = d.goal;
+  document.getElementById('time').value = d.time;
+  document.getElementById('energy').value = d.energy;
+  document.getElementById('focus').value = d.focus;
+  document.getElementById('foods').value = d.foods;
+  document.getElementById('calories').value = d.calories;
+  document.getElementById('protein').value = d.protein;
+  document.getElementById('wakeTime').value = d.wakeTime;
+  document.getElementById('sleepTime').value = d.sleepTime;
+  document.getElementById('scheduleBlocks').value = d.scheduleBlocks;
+  document.getElementById('prefWindow').value = d.prefWindow;
+  document.getElementById('stress').value = d.stress;
+  document.getElementById('eatBefore').value = d.eatBefore;
+  document.getElementById('eatAfter').value = d.eatAfter;
+  document.getElementById('injurySeverity').value = d.injurySeverity;
+  document.getElementById('rehabPref').value = d.rehabPref;
+  document.querySelectorAll('#equipmentChips .chip').forEach(c => c.classList.toggle('selected', d.equipment.includes(c.dataset.val)));
+  document.querySelectorAll('#sorenessChips .chip').forEach(c => c.classList.toggle('selected', d.soreness.includes(c.dataset.val)));
+  document.querySelectorAll('#injuryChips .chip').forEach(c => c.classList.toggle('selected', d.injuries.includes(c.dataset.val)));
+  document.querySelectorAll('#restrictionChips .chip').forEach(c => c.classList.toggle('selected', d.restrictions.includes(c.dataset.val)));
+}
+
+function togglePresenter() {
+  presenterMode = !presenterMode;
+  document.body.classList.toggle('presenter', presenterMode);
+  document.body.classList.add('no-step');
+  document.getElementById('presenterBtn').classList.toggle('active', presenterMode);
+  presenterStep = -1;
+}
+
+function resetForm() {
+  document.getElementById('outputSection').classList.remove('visible');
+  document.getElementById('chatPanel').style.display = 'none';
+  document.getElementById('chatMessages').innerHTML = '';
+  document.getElementById('inputSection').style.display = '';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function gatherParams() {
+  return {
+    goal: document.getElementById('goal').value,
+    time: document.getElementById('time').value,
+    energy: document.getElementById('energy').value,
+    focus: document.getElementById('focus').value,
+    equipment: getEquipment(),
+    foods: document.getElementById('foods').value,
+    calories: parseInt(document.getElementById('calories').value) || 0,
+    protein: parseInt(document.getElementById('protein').value) || 0,
+    wakeTime: document.getElementById('wakeTime').value,
+    sleepTime: document.getElementById('sleepTime').value,
+    scheduleBlocks: document.getElementById('scheduleBlocks').value,
+    prefWindow: document.getElementById('prefWindow').value,
+    stress: document.getElementById('stress').value,
+    eatBefore: document.getElementById('eatBefore').value,
+    eatAfter: document.getElementById('eatAfter').value,
+    soreness: getChipValues('sorenessChips')[0] || 'none',
+    injuries: getChipValues('injuryChips'),
+    injurySeverity: document.getElementById('injurySeverity').value,
+    rehabPref: document.getElementById('rehabPref').value,
+    restrictions: getChipValues('restrictionChips'),
+  };
+}
+
+function generate() {
+  const p = gatherParams();
+  if (!p.goal || !p.time || !p.energy || !p.focus) { alert('Please fill in goal, time, energy, and focus.'); return; }
+  if (p.equipment.length === 0) { alert('Please select at least one equipment option.'); return; }
+
+  currentParams = p;
+
+  const btn = document.getElementById('generateBtn');
+  btn.classList.add('loading'); btn.textContent = 'Generating your plan...';
+  document.getElementById('loadingSection').style.display = 'block';
+
+  setTimeout(() => {
+    try {
+      const restrictions = getActiveRestrictions(p.injuries, p.restrictions);
+      currentSchedule = generateScheduleRec({ wakeTime: p.wakeTime, sleepTime: p.sleepTime, blocks: p.scheduleBlocks, prefWindow: p.prefWindow, stress: p.stress, energy: p.energy, soreness: p.soreness, timeMin: parseInt(p.time) });
+      currentWorkout = generateWorkout({ ...p, restrictions, stress: p.stress, soreness: p.soreness });
+      currentMeal = generateMealPlan({ foods: p.foods || 'chicken, rice, eggs, vegetables', goal: p.goal, calories: p.calories, protein: p.protein });
+      currentAdjNotes = getAdjustmentNotes(p.injuries, restrictions);
+      currentMobility = getMobilitySuggestions(p.injuries, p.rehabPref);
+    } catch (e) {
+      console.error('Generation error, using static fallback:', e);
+      currentSchedule = STATIC_OUTPUT.schedule;
+      currentWorkout = STATIC_OUTPUT.workout;
+      currentMeal = STATIC_OUTPUT.meal;
+      currentAdjNotes = STATIC_OUTPUT.adjustmentNotes;
+      currentMobility = STATIC_OUTPUT.mobilitySuggestions;
+    }
+
+    renderOutput();
+    document.getElementById('loadingSection').style.display = 'none';
+    document.getElementById('inputSection').style.display = 'none';
+    document.getElementById('outputSection').classList.add('visible');
+    document.getElementById('chatPanel').style.display = '';
+    initChat();
+    btn.classList.remove('loading'); btn.textContent = "Generate Today's Plan";
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    if (presenterMode) { document.body.classList.remove('no-step'); presenterStep = 0; highlightPresenterCard(); }
+  }, 1200);
+}
+
+// ============================================================
+// RENDER OUTPUT
+// ============================================================
+function renderOutput() {
+  const workout = currentWorkout, meal = currentMeal, schedule = currentSchedule, p = currentParams;
+  const goalLabels = { build_muscle:'Build Muscle', lose_fat:'Lose Fat', recomposition:'Recomp', strength:'Strength', general:'General Fitness' };
+  const energyLabels = { great:'High Energy', okay:'Normal', tired:'Low Energy', sore:'Recovery' };
+  let html = '';
+
+  // Header
+  html += `<div class="plan-header">
+    <h2>${workout.title || 'Your Plan for Today'}</h2>
+    <div class="plan-meta">
+      <span class="meta-badge goal">${goalLabels[p.goal]||p.goal}</span>
+      <span class="meta-badge time">${p.time} min</span>
+      <span class="meta-badge energy">${energyLabels[p.energy]||p.energy}</span>
+      ${currentAdjNotes.length > 0 ? '<span class="meta-badge injury">Injury-Adapted</span>' : ''}
+    </div>
+  </div>`;
+
+  // Summary bar
+  html += `<div class="summary-bar">
+    <div class="summary-stat dur"><div class="val">${workout.totalTime}m</div><div class="lbl">Workout</div></div>
+    <div class="summary-stat" style=""><div class="val" style="color:var(--accent2);">${schedule.recommendedTime}</div><div class="lbl">Best Time</div></div>
+    <div class="summary-stat cal"><div class="val">${meal.targets.calories.toLocaleString()}</div><div class="lbl">Cal Target</div></div>
+    <div class="summary-stat pro"><div class="val">${meal.targets.protein}g</div><div class="lbl">Protein</div></div>
+    <div class="summary-stat"><div class="val">${workout.exercises.length}</div><div class="lbl">Exercises</div></div>
+  </div>`;
+
+  // Schedule card
+  html += `<div class="card animate-in">
+    <div class="card-header"><div class="card-icon schedule">&#128197;</div> Recommended Timing</div>
+    <div style="display:flex;gap:24px;flex-wrap:wrap;">
+      <div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;">Best Slot</div><div style="font-size:20px;font-weight:700;color:var(--accent2);">${schedule.recommendedTime}</div></div>
+      <div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;">Backup</div><div style="font-size:20px;font-weight:700;color:var(--muted);">${schedule.backupTime}</div></div>
+      <div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;">Effort Level</div><div style="font-size:16px;font-weight:600;color:var(--orange);">${schedule.effortLabel}</div></div>
+    </div>
+    <div class="tip-text" style="margin-top:12px;">${schedule.reason}</div>
+  </div>`;
+
+  // Workout card
+  html += `<div class="card animate-in">
+    <div class="card-header"><div class="card-icon workout">&#127947;</div> Today's Workout</div>
+    <div style="display:flex;gap:16px;margin-bottom:12px;flex-wrap:wrap;">
+      <div style="padding:8px 14px;background:var(--surface2);border-radius:8px;font-size:13px;"><strong>Intent:</strong> ${workout.trainingIntent}</div>
+      <div style="padding:8px 14px;background:var(--surface2);border-radius:8px;font-size:13px;"><strong>Warmup:</strong> ${workout.warmup.detail} (${workout.warmup.duration})</div>
+    </div>`;
+  if (workout.isCircuit) html += `<div style="margin-bottom:10px;font-size:13px;color:var(--orange);font-weight:500;">Circuit Format: Complete all exercises, then rest and repeat</div>`;
+  html += `<table class="exercise-table"><tr><th>Exercise</th><th>Sets</th><th>Reps</th><th>Rest</th></tr>`;
+  for (const ex of workout.exercises) {
+    html += `<tr><td>${ex.name}<span class="note">${ex.muscle}</span>${ex.substitution ? `<span class="sub">${ex.substitution}</span>` : ''}</td><td>${ex.sets}</td><td>${ex.reps}</td><td>${ex.rest}</td></tr>`;
+  }
+  if (workout.core.length > 0) {
+    html += `<tr><td colspan="4" style="font-size:12px;color:var(--accent2);padding-top:16px;font-weight:600;">CORE FINISHER</td></tr>`;
+    for (const ex of workout.core) html += `<tr><td>${ex.name}<span class="note">${ex.muscle}</span></td><td>${ex.sets}</td><td>${ex.reps}</td><td>${ex.rest}</td></tr>`;
+  }
+  html += `</table><div style="margin-top:14px;padding:10px 14px;background:var(--surface2);border-radius:8px;font-size:13px;"><strong>Cooldown:</strong> ${workout.cooldown}</div></div>`;
+
+  // Intensity card
+  html += `<div class="card animate-in">
+    <div class="card-header"><div class="card-icon tip">&#128161;</div> Today's Intensity</div>
+    <div class="tip-text">${workout.intensityNote}</div>
+    ${workout.recoveryNote ? `<div class="tip-text" style="margin-top:8px;color:var(--green);">${workout.recoveryNote}</div>` : ''}
+  </div>`;
+
+  // Injury adjustments card
+  if (currentAdjNotes.length > 0 || currentMobility.length > 0) {
+    html += `<div class="card animate-in">
+      <div class="card-header"><div class="card-icon recovery">&#129657;</div> Injury Adjustments & Mobility</div>`;
+    if (currentAdjNotes.length > 0) {
+      html += `<div style="margin-bottom:12px;"><div style="font-size:12px;color:var(--orange);font-weight:600;margin-bottom:6px;text-transform:uppercase;">Why This Was Adjusted</div>`;
+      for (const n of currentAdjNotes) html += `<div class="tip-text" style="margin-bottom:4px;">&#8226; ${n}</div>`;
+      html += `</div>`;
+    }
+    if (currentMobility.length > 0) {
+      html += `<div style="margin-top:12px;"><div style="font-size:12px;color:var(--green);font-weight:600;margin-bottom:6px;text-transform:uppercase;">Light Mobility Suggestions</div>`;
+      for (const m of currentMobility) html += `<div style="padding:6px 0;font-size:13px;"><strong>${m.name}</strong> <span style="color:var(--muted);">- ${m.detail}</span></div>`;
+      html += `</div>`;
+    }
+    html += `<div class="disclaimer">For pain, injury, or persistent symptoms, consult a qualified clinician. These are movement-friendly alternatives, not medical treatment.</div></div>`;
+  }
+
+  // Meal card
+  html += `<div class="card animate-in"><div class="card-header"><div class="card-icon meal">&#127860;</div> Meal Plan</div>`;
+  for (const m of meal.meals) {
+    html += `<div class="meal-item"><div><div class="meal-name">${m.name}</div><div class="meal-desc">${m.description}${m.note ? ` - <em>${m.note}</em>` : ''}</div></div><div class="meal-macros">~${m.cal} cal | ${m.pro}g protein</div></div>`;
+  }
+  if (meal.bestNextMeal) html += `<div style="margin-top:12px;padding:10px 14px;background:var(--surface2);border-radius:8px;font-size:13px;"><strong>Best next meal:</strong> ${meal.bestNextMeal}</div>`;
+  if (meal.unmatchedFoods.length > 0) html += `<div style="margin-top:8px;font-size:12px;color:var(--muted);">Also incorporate: ${meal.unmatchedFoods.join(', ')}</div>`;
+  html += `</div>`;
+
+  // Snack card
+  html += `<div class="card animate-in"><div class="card-header"><div class="card-icon snack">&#127836;</div> Workout Snacks</div>
+    <div class="snack-row">
+      <div class="snack-box"><div class="snack-label">Pre-Workout</div><div class="snack-text">${meal.preSnack.text}</div><div class="snack-detail">${meal.preSnack.detail}</div></div>
+      <div class="snack-box"><div class="snack-label">Post-Workout</div><div class="snack-text">${meal.postSnack.text}</div><div class="snack-detail">${meal.postSnack.detail}</div></div>
+    </div></div>`;
+
+  // Summary card
+  html += `<div class="card animate-in"><div class="card-header"><div class="card-icon tip">&#128202;</div> Daily Summary</div>
+    <div class="tip-text">
+      <strong>Estimated intake:</strong> ~${meal.estimatedTotals.calories.toLocaleString()} calories, ~${meal.estimatedTotals.protein}g protein<br>
+      <strong>Target:</strong> ${meal.targets.calories.toLocaleString()} calories, ${meal.targets.protein}g protein<br>
+      ${meal.estimatedTotals.protein < meal.targets.protein
+        ? '<span style="color:var(--orange);">Consider adding a protein shake or extra serving of lean protein to hit your target.</span>'
+        : '<span style="color:var(--green);">You\'re on track to hit your protein goal!</span>'}
+    </div></div>`;
+
+  document.getElementById('outputContent').innerHTML = html;
+}
+
+// ============================================================
+// COACH CHAT
+// ============================================================
+const CHAT_SUGGESTIONS = [
+  "I only have 20 minutes now",
+  "Make this upper-body focused",
+  "My knee feels worse",
+  "I don't have a bench",
+  "Lower the intensity",
+  "Make meals simpler",
+];
+
+function initChat() {
+  const el = document.getElementById('chatSuggestions');
+  el.innerHTML = CHAT_SUGGESTIONS.map(s => `<button class="chat-suggestion" onclick="handleChatSuggestion(this)">${s}</button>`).join('');
+  addChatMsg('assistant', "Hey! I'm your coach. Ask me to adjust your workout or meals. Try one of the suggestions above, or type anything.");
+}
+
+function handleChatSuggestion(btn) {
+  document.getElementById('chatInput').value = btn.textContent;
+  sendChat();
+}
+
+function addChatMsg(role, text, action) {
+  const el = document.getElementById('chatMessages');
+  el.innerHTML += `<div class="chat-msg ${role}">${text}${action ? `<span class="chat-action">${action}</span>` : ''}</div>`;
+  el.scrollTop = el.scrollHeight;
+}
+
+function sendChat() {
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  addChatMsg('user', msg);
+
+  const result = processChat(msg.toLowerCase());
+  addChatMsg('assistant', result.reply, result.action);
+  if (result.changed) renderOutput();
+}
+
+function processChat(msg) {
+  // Time reduction
+  if (msg.match(/only have (\d+) min/i) || msg.match(/(\d+) minutes/i)) {
+    const m = msg.match(/(\d+)/);
+    if (m) {
+      const newTime = parseInt(m[1]);
+      currentParams.time = String(newTime);
+      const restrictions = getActiveRestrictions(currentParams.injuries, currentParams.restrictions);
+      currentWorkout = generateWorkout({ ...currentParams, restrictions, stress: currentParams.stress, soreness: currentParams.soreness });
+      return { reply: `Got it! I've compressed your workout to ${newTime} minutes. Reduced exercise count and tightened rest periods.`, action: `Plan updated: ${newTime} min, ${currentWorkout.exercises.length} exercises`, changed: true };
+    }
+  }
+
+  // Focus change
+  if (msg.includes('upper') && (msg.includes('focus') || msg.includes('body') || msg.includes('make'))) {
+    currentParams.focus = 'upper';
+    const restrictions = getActiveRestrictions(currentParams.injuries, currentParams.restrictions);
+    currentWorkout = generateWorkout({ ...currentParams, restrictions, stress: currentParams.stress, soreness: currentParams.soreness });
+    return { reply: "Switched to upper body focus. Your exercises are now all pushing and pulling movements.", action: 'Focus changed to Upper Body', changed: true };
+  }
+  if (msg.includes('lower') && (msg.includes('focus') || msg.includes('body') || msg.includes('make'))) {
+    currentParams.focus = 'lower';
+    const restrictions = getActiveRestrictions(currentParams.injuries, currentParams.restrictions);
+    currentWorkout = generateWorkout({ ...currentParams, restrictions, stress: currentParams.stress, soreness: currentParams.soreness });
+    return { reply: "Switched to lower body focus. All exercises are now lower-body dominant.", action: 'Focus changed to Lower Body', changed: true };
+  }
+  if (msg.includes('full body')) {
+    currentParams.focus = 'full_body';
+    const restrictions = getActiveRestrictions(currentParams.injuries, currentParams.restrictions);
+    currentWorkout = generateWorkout({ ...currentParams, restrictions, stress: currentParams.stress, soreness: currentParams.soreness });
+    return { reply: "Switched to full body. You'll hit push, pull, and legs.", action: 'Focus changed to Full Body', changed: true };
+  }
+
+  // Intensity
+  if (msg.includes('lower') && msg.includes('intensity') || msg.includes('easier') || msg.includes('lighter') || msg.includes('take it easy')) {
+    currentParams.energy = 'tired';
+    const restrictions = getActiveRestrictions(currentParams.injuries, currentParams.restrictions);
+    currentWorkout = generateWorkout({ ...currentParams, restrictions, stress: currentParams.stress, soreness: currentParams.soreness });
+    return { reply: "No problem - I've dialed back the intensity. Fewer sets, lower rep ranges, and more rest time.", action: 'Intensity reduced', changed: true };
+  }
+  if (msg.includes('harder') || msg.includes('more intense') || msg.includes('crank') || msg.includes('push me')) {
+    currentParams.energy = 'great';
+    const restrictions = getActiveRestrictions(currentParams.injuries, currentParams.restrictions);
+    currentWorkout = generateWorkout({ ...currentParams, restrictions, stress: currentParams.stress, soreness: currentParams.soreness });
+    return { reply: "Let's go! Added more sets and tightened rest periods. Time to push yourself.", action: 'Intensity increased', changed: true };
+  }
+
+  // Equipment removal
+  if (msg.includes("don't have") || msg.includes('dont have') || msg.includes('no bench') || msg.includes('without') || msg.includes('remove')) {
+    const equips = ['bench','barbell','dumbbells','bands','machines'];
+    for (const eq of equips) {
+      if (msg.includes(eq)) {
+        currentParams.equipment = currentParams.equipment.filter(e => e !== eq);
+        const restrictions = getActiveRestrictions(currentParams.injuries, currentParams.restrictions);
+        currentWorkout = generateWorkout({ ...currentParams, restrictions, stress: currentParams.stress, soreness: currentParams.soreness });
+        return { reply: `Removed ${eq} from your setup. I've swapped out any exercises that needed it.`, action: `Equipment updated (removed ${eq})`, changed: true };
+      }
+    }
+    // Hotel gym
+    if (msg.includes('hotel')) {
+      currentParams.equipment = ['bodyweight', 'dumbbells'];
+      const restrictions = getActiveRestrictions(currentParams.injuries, currentParams.restrictions);
+      currentWorkout = generateWorkout({ ...currentParams, restrictions, stress: currentParams.stress, soreness: currentParams.soreness });
+      return { reply: "Hotel gym mode! Using only bodyweight and dumbbells. Exercises updated.", action: 'Equipment: bodyweight + dumbbells only', changed: true };
+    }
+  }
+
+  // Injury / knee / back
+  if (msg.includes('knee') && (msg.includes('worse') || msg.includes('hurts') || msg.includes('pain') || msg.includes('friendly') || msg.includes('issue'))) {
+    if (!currentParams.injuries.includes('knee')) currentParams.injuries.push('knee');
+    if (!currentParams.restrictions.includes('jumping')) currentParams.restrictions.push('jumping');
+    if (!currentParams.restrictions.includes('deep_knee_bend')) currentParams.restrictions.push('deep_knee_bend');
+    const restrictions = getActiveRestrictions(currentParams.injuries, currentParams.restrictions);
+    currentWorkout = generateWorkout({ ...currentParams, restrictions, stress: currentParams.stress, soreness: currentParams.soreness });
+    currentAdjNotes = getAdjustmentNotes(currentParams.injuries, restrictions);
+    currentMobility = getMobilitySuggestions(currentParams.injuries, currentParams.rehabPref === 'avoid' ? 'mobility' : currentParams.rehabPref);
+    return { reply: "I've flagged your knee and removed jumping and deep knee bends. Swapped in knee-friendly alternatives.", action: 'Knee-friendly adjustments applied', changed: true };
+  }
+  if (msg.includes('back') && (msg.includes('worse') || msg.includes('hurts') || msg.includes('pain') || msg.includes('lower') || msg.includes('issue'))) {
+    if (!currentParams.injuries.includes('lower_back')) currentParams.injuries.push('lower_back');
+    if (!currentParams.restrictions.includes('hinge_from_floor')) currentParams.restrictions.push('hinge_from_floor');
+    const restrictions = getActiveRestrictions(currentParams.injuries, currentParams.restrictions);
+    currentWorkout = generateWorkout({ ...currentParams, restrictions, stress: currentParams.stress, soreness: currentParams.soreness });
+    currentAdjNotes = getAdjustmentNotes(currentParams.injuries, restrictions);
+    currentMobility = getMobilitySuggestions(currentParams.injuries, 'mobility');
+    return { reply: "I've removed heavy hinge-from-floor movements and added lower-back friendly alternatives. Also included some light mobility work.", action: 'Lower back adjustments applied', changed: true };
+  }
+  if (msg.includes('shoulder') && (msg.includes('worse') || msg.includes('hurts') || msg.includes('pain') || msg.includes('issue'))) {
+    if (!currentParams.injuries.includes('shoulder')) currentParams.injuries.push('shoulder');
+    if (!currentParams.restrictions.includes('overhead_pressing')) currentParams.restrictions.push('overhead_pressing');
+    const restrictions = getActiveRestrictions(currentParams.injuries, currentParams.restrictions);
+    currentWorkout = generateWorkout({ ...currentParams, restrictions, stress: currentParams.stress, soreness: currentParams.soreness });
+    currentAdjNotes = getAdjustmentNotes(currentParams.injuries, restrictions);
+    currentMobility = getMobilitySuggestions(currentParams.injuries, 'mobility');
+    return { reply: "Overhead pressing removed and replaced with lower-irritation shoulder options like lateral raises.", action: 'Shoulder-friendly adjustments applied', changed: true };
+  }
+
+  // Swap specific exercise
+  if (msg.includes('swap') || msg.includes('replace') || msg.includes('switch out') || msg.includes('remove')) {
+    for (let i = 0; i < currentWorkout.exercises.length; i++) {
+      const ex = currentWorkout.exercises[i];
+      if (msg.includes(ex.name.toLowerCase()) || msg.toLowerCase().split(' ').some(w => ex.name.toLowerCase().includes(w) && w.length > 4)) {
+        const restrictions = getActiveRestrictions(currentParams.injuries, currentParams.restrictions);
+        const focus = currentParams.focus;
+        let pool = [];
+        if (focus === 'lower' || focus === 'full_body') pool = [...filterByRestrictions(gatherLowerExercises(currentParams.equipment), restrictions)];
+        if (focus === 'upper' || focus === 'push' || focus === 'full_body') pool = [...pool, ...filterByRestrictions(gatherExercises('push', currentParams.equipment), restrictions)];
+        if (focus === 'upper' || focus === 'pull' || focus === 'full_body') pool = [...pool, ...filterByRestrictions(gatherExercises('pull', currentParams.equipment), restrictions)];
+        pool = pool.filter(e => e.name !== ex.name && e.muscle === ex.muscle);
+        if (pool.length === 0) pool = pool.length === 0 ? filterByRestrictions(gatherExercises('push', currentParams.equipment), restrictions) : pool;
+        if (pool.length > 0) {
+          const replacement = pool[Math.floor(Math.random() * pool.length)];
+          currentWorkout.exercises[i] = { ...currentWorkout.exercises[i], name: replacement.name, muscle: replacement.muscle, substitution: `Swapped from ${ex.name}` };
+          return { reply: `Swapped ${ex.name} for ${replacement.name}. Same muscle group, different movement.`, action: `Exercise swapped`, changed: true };
+        }
+      }
+    }
+  }
+
+  // Simplify meals
+  if (msg.includes('simpl') && msg.includes('meal') || msg.includes('easier meals') || msg.includes('basic meals')) {
+    for (const m of currentMeal.meals) {
+      m.description = m.description.replace(/with roasted vegetables|with sauteed spinach|with almonds|with garlic/g, '').trim();
+      m.note = 'Keep it simple';
+    }
+    return { reply: "Simplified your meals - stripped down to the basics. Quick and easy prep.", action: 'Meals simplified', changed: true };
+  }
+
+  // Update foods
+  if (msg.includes('only have') && (msg.includes('egg') || msg.includes('chicken') || msg.includes('rice') || msg.includes('yogurt'))) {
+    const foods = msg.replace(/i only have|i just have|only have/i, '').replace(/and/g, ',').trim();
+    currentParams.foods = foods;
+    currentMeal = generateMealPlan({ foods, goal: currentParams.goal, calories: currentParams.calories, protein: currentParams.protein });
+    return { reply: `Updated your available foods. Meals are now built from: ${foods}`, action: 'Food list & meals updated', changed: true };
+  }
+
+  // Fallback
+  return { reply: "I'm not sure how to adjust that. Try asking me to change the time, focus, intensity, equipment, injuries, or meals.", action: null, changed: false };
+}
+
+// ============================================================
+// PRESENTER MODE
+// ============================================================
+function highlightPresenterCard() {
+  const cards = document.querySelectorAll('#outputSection .card');
+  cards.forEach((c, i) => c.classList.toggle('active-card', i === presenterStep));
+}
+
+document.addEventListener('keydown', (e) => {
+  if (!presenterMode || !document.getElementById('outputSection').classList.contains('visible')) return;
+  const cards = document.querySelectorAll('#outputSection .card');
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+    e.preventDefault(); presenterStep = Math.min(presenterStep + 1, cards.length - 1);
+    highlightPresenterCard(); cards[presenterStep]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+    e.preventDefault(); presenterStep = Math.max(presenterStep - 1, 0);
+    highlightPresenterCard(); cards[presenterStep]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+});
+</script>
+</body>
+</html>
