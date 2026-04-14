@@ -247,6 +247,13 @@ body.presenter.no-step .card { opacity: 1; }
 }
 @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
+/* Goal description blurb */
+.goal-desc { font-size: 12px; color: var(--muted); margin-top: 5px; min-height: 16px; line-height: 1.4; font-style: italic; }
+
+/* Conditional sub-fields */
+.conditional-field { display: none; }
+.conditional-field.visible { display: flex; flex-direction: column; gap: 5px; margin-top: 10px; }
+
 @media (max-width: 600px) {
   .form-grid { grid-template-columns: 1fr; }
   .snack-row { flex-direction: column; }
@@ -273,26 +280,79 @@ body.presenter.no-step .card { opacity: 1; }
 
     <div class="section-title">&#127919; Goals &amp; Basics</div>
     <div class="form-grid">
-      <div class="form-group">
-        <label>Fitness Goal</label>
+      <div class="form-group full">
+        <label>Primary Goal</label>
         <select id="goal">
           <option value="">Select goal...</option>
-          <option value="build_muscle">Build Muscle</option>
-          <option value="lose_fat">Lose Fat</option>
-          <option value="recomposition">Body Recomposition</option>
-          <option value="strength">Build Strength</option>
-          <option value="general">General Fitness</option>
+          <optgroup label="Body Composition">
+            <option value="build_muscle">Build Muscle</option>
+            <option value="lose_fat">Lose Fat / Cut</option>
+            <option value="recomposition">Body Recomposition</option>
+          </optgroup>
+          <optgroup label="Performance">
+            <option value="build_strength">Build Strength</option>
+            <option value="improve_endurance">Improve Endurance</option>
+            <option value="improve_athletic">Athletic Performance</option>
+          </optgroup>
+          <optgroup label="Wellness &amp; Skill">
+            <option value="improve_mobility">Mobility &amp; Flexibility</option>
+            <option value="skill_based">Skill-Based Training</option>
+            <option value="event_based">Event / Race Prep</option>
+            <option value="general">General Fitness</option>
+            <option value="other">Other</option>
+          </optgroup>
         </select>
+        <div id="goalDesc" class="goal-desc"></div>
+        <div id="eventTypeField" class="conditional-field">
+          <label>Event Type</label>
+          <div class="chip-group" id="eventTypeChips">
+            <span class="chip" data-val="5k_10k">5K / 10K</span>
+            <span class="chip" data-val="half_marathon">Half Marathon</span>
+            <span class="chip" data-val="marathon">Marathon</span>
+            <span class="chip" data-val="triathlon">Triathlon</span>
+            <span class="chip" data-val="cycling">Cycling Event</span>
+            <span class="chip" data-val="sport_team">Team Sport</span>
+            <span class="chip" data-val="sport_combat">Combat Sport</span>
+          </div>
+        </div>
+        <div id="skillTypeField" class="conditional-field">
+          <label>Skill Focus</label>
+          <div class="chip-group" id="skillTypeChips">
+            <span class="chip" data-val="calisthenics">Calisthenics</span>
+            <span class="chip" data-val="yoga">Yoga</span>
+            <span class="chip" data-val="handstands">Handstands</span>
+            <span class="chip" data-val="martial_arts">Martial Arts</span>
+            <span class="chip" data-val="gymnastics">Gymnastics</span>
+            <span class="chip" data-val="dance">Dance</span>
+          </div>
+        </div>
+        <div id="otherGoalField" class="conditional-field">
+          <label>Describe Your Goal</label>
+          <input type="text" id="otherGoalText" placeholder="e.g. prepare for hiking season, improve posture&hellip;">
+        </div>
+      </div>
+      <div class="form-group full">
+        <label>Secondary Goals <span style="color:var(--muted);font-weight:400;">(optional)</span></label>
+        <div class="chip-group" id="secondaryGoalChips">
+          <span class="chip" data-val="lose_fat">Lose Fat</span>
+          <span class="chip" data-val="build_muscle">Build Muscle</span>
+          <span class="chip" data-val="improve_flexibility">Flexibility</span>
+          <span class="chip" data-val="improve_energy">More Energy</span>
+          <span class="chip" data-val="stress_relief">Stress Relief</span>
+          <span class="chip" data-val="better_sleep">Better Sleep</span>
+          <span class="chip" data-val="injury_prevention">Injury Prevention</span>
+          <span class="chip" data-val="posture">Better Posture</span>
+        </div>
       </div>
       <div class="form-group">
         <label>Time Available</label>
-        <select id="time">
-          <option value="">Select time...</option>
-          <option value="20">20 minutes</option>
-          <option value="30">30 minutes</option>
-          <option value="45">45 minutes</option>
-          <option value="60">60 minutes</option>
-        </select>
+        <div class="chip-group" id="timeChips" style="margin-bottom:6px;">
+          <span class="chip" data-val="20">20 min</span>
+          <span class="chip" data-val="30">30 min</span>
+          <span class="chip selected" data-val="45">45 min</span>
+          <span class="chip" data-val="60">60 min</span>
+        </div>
+        <input type="number" id="timeCustom" placeholder="Custom (min)" min="10" max="180" style="display:none;">
       </div>
       <div class="form-group">
         <label>How Do You Feel Today?</label>
@@ -363,18 +423,22 @@ body.presenter.no-step .card { opacity: 1; }
         </select>
       </div>
       <div class="form-group">
-        <label>Can Eat Before Workout?</label>
-        <select id="eatBefore">
-          <option value="yes">Yes</option>
-          <option value="no">No</option>
-        </select>
+        <label>Pre-Workout Preference</label>
+        <div class="chip-group" id="preworkoutChips">
+          <span class="chip" data-val="fasted">Fasted</span>
+          <span class="chip selected" data-val="light_snack">Light Snack</span>
+          <span class="chip" data-val="full_meal">Full Meal</span>
+          <span class="chip" data-val="depends">Depends</span>
+        </div>
       </div>
       <div class="form-group">
-        <label>Post-Workout Meal Within 1hr?</label>
-        <select id="eatAfter">
-          <option value="yes">Yes</option>
-          <option value="no">No</option>
-        </select>
+        <label>Post-Workout Meal Timing</label>
+        <div class="chip-group" id="postworkoutChips">
+          <span class="chip" data-val="within_30min">Within 30 min</span>
+          <span class="chip selected" data-val="within_1hr">Within 1 hr</span>
+          <span class="chip" data-val="1_2hr">1–2 hours</span>
+          <span class="chip" data-val="no_preference">No preference</span>
+        </div>
       </div>
       <div class="form-group full">
         <label>Current Soreness</label>
@@ -448,6 +512,34 @@ body.presenter.no-step .card { opacity: 1; }
       <div class="form-group">
         <label>Protein Target (optional, grams)</label>
         <input type="number" id="protein" placeholder="e.g. 150">
+      </div>
+    </div>
+
+    <div class="section-title">&#128167; Hydration &amp; Supplements</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Daily Water Target (litres)</label>
+        <input type="number" id="waterTarget" placeholder="e.g. 2.5" min="0.5" max="6" step="0.5" value="2">
+      </div>
+      <div class="form-group">
+        <label>Hydration Status Right Now</label>
+        <div class="chip-group" id="hydrationChips">
+          <span class="chip" data-val="low">Low</span>
+          <span class="chip selected" data-val="okay">Okay</span>
+          <span class="chip" data-val="good">Well Hydrated</span>
+        </div>
+      </div>
+      <div class="form-group full">
+        <label>Supplements <span style="color:var(--muted);font-weight:400;">(optional)</span></label>
+        <div class="chip-group" id="supplementChips">
+          <span class="chip selected" data-val="none">None</span>
+          <span class="chip" data-val="protein_powder">Protein Powder</span>
+          <span class="chip" data-val="creatine">Creatine</span>
+          <span class="chip" data-val="caffeine">Caffeine / Pre-workout</span>
+          <span class="chip" data-val="electrolytes">Electrolytes</span>
+          <span class="chip" data-val="omega3">Omega-3</span>
+          <span class="chip" data-val="multivitamin">Multivitamin</span>
+        </div>
       </div>
     </div>
 
@@ -906,6 +998,8 @@ function generateWorkout(params) {
 
   if (focus === 'recovery') return generateRecoveryWorkout(Math.floor(timeMin / 3), energy);
   if (focus === 'cardio') return generateCardioWorkout(timeMin, energy, restrictions);
+  if (goal === 'improve_mobility') return generateRecoveryWorkout(Math.floor(timeMin / 3), energy);
+  if (goal === 'improve_endurance') return generateCardioWorkout(timeMin, energy, restrictions);
 
   // Scheme
   const schemes = {
@@ -913,7 +1007,12 @@ function generateWorkout(params) {
     lose_fat: { sets: 3, reps: '12-15', rest: '45s' },
     recomposition: { sets: 3, reps: '10-12', rest: '60s' },
     strength: { sets: 5, reps: '3-5', rest: '2-3 min' },
+    build_strength: { sets: 5, reps: '3-5', rest: '2-3 min' },
+    improve_athletic: { sets: 4, reps: '6-10', rest: '60s' },
+    skill_based: { sets: 3, reps: '5-8', rest: '90s' },
+    event_based: { sets: 3, reps: '12-15', rest: '45s' },
     general: { sets: 3, reps: '10-15', rest: '60s' },
+    other: { sets: 3, reps: '10-12', rest: '60s' },
   };
   const scheme = schemes[goal] || schemes.general;
   let { sets, reps, rest } = scheme;
@@ -970,7 +1069,7 @@ function generateWorkout(params) {
 
   // Workout title
   const focusLabels = { full_body:'Full Body', upper:'Upper Body', lower:'Lower Body', push:'Push', pull:'Pull' };
-  const intentLabels = { build_muscle:'Hypertrophy', lose_fat:'Fat-Loss Efficiency', recomposition:'Recomp', strength:'Performance', general:'General Fitness' };
+  const intentLabels = { build_muscle:'Hypertrophy', lose_fat:'Fat-Loss Efficiency', recomposition:'Recomp', strength:'Strength', build_strength:'Strength & Power', improve_athletic:'Athletic Performance', skill_based:'Skill Acquisition', event_based:'Event Preparation', general:'General Fitness', other:'Custom Goal' };
   let title = `${focusLabels[focus]||focus} ${intentLabels[goal]||''}`.trim();
   if (timeMin <= 20) title += ' (Express)';
   if (isLow) title += ' - Light Session';
@@ -1133,17 +1232,21 @@ function estimateTotals(meals) { return { calories: meals.reduce((s,m) => s+m.ca
 // DEMO MODE
 // ============================================================
 const DEMO_PROFILE = {
-  goal: 'recomposition', time: '45', energy: 'okay', focus: 'lower',
-  equipment: ['dumbbells', 'bench', 'bands', 'bodyweight'],
-  foods: 'eggs, greek yogurt, rice, chicken, oats, bananas, frozen berries, spinach, tortillas',
-  calories: 2100, protein: 160,
-  wakeTime: '07:00', sleepTime: '23:00',
-  scheduleBlocks: '9-12, 13:30-16',
-  prefWindow: 'evening', stress: 'medium',
-  eatBefore: 'yes', eatAfter: 'yes',
+  goal: 'event_based', eventType: '5k_10k',
+  secondaryGoals: ['improve_endurance', 'improve_energy'],
+  time: '45', energy: 'okay', focus: 'full_body',
+  equipment: ['dumbbells', 'bands', 'bodyweight'],
+  foods: 'eggs, greek yogurt, oats, chicken, bananas, frozen berries, spinach, rice, tortillas',
+  calories: 2200, protein: 140,
+  wakeTime: '06:30', sleepTime: '22:30',
+  scheduleBlocks: '8-12, 13-15',
+  prefWindow: 'early_morning', stress: 'medium',
+  preworkout: 'light_snack', postworkout: 'within_1hr',
   soreness: ['none'],
   injuries: ['knee'], injurySeverity: 'mild', rehabPref: 'mobility',
   restrictions: ['jumping', 'deep_knee_bend'],
+  waterTarget: '2.5', hydrationStatus: 'okay',
+  supplements: ['protein_powder', 'electrolytes'],
 };
 
 const STATIC_OUTPUT = {
@@ -1214,6 +1317,69 @@ setupChipGroup('equipmentChips', false);
 setupChipGroup('sorenessChips', true);
 setupChipGroup('injuryChips', true);
 setupChipGroup('restrictionChips', false);
+setupChipGroup('secondaryGoalChips', false);
+setupChipGroup('supplementChips', true);
+
+// Exclusive chip helper (single selection, no "none" chip)
+function setupExclusiveChips(id) {
+  document.querySelectorAll(`#${id} .chip`).forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll(`#${id} .chip`).forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+    });
+  });
+}
+setupExclusiveChips('preworkoutChips');
+setupExclusiveChips('postworkoutChips');
+setupExclusiveChips('hydrationChips');
+setupExclusiveChips('eventTypeChips');
+setupExclusiveChips('skillTypeChips');
+
+// Time chips — exclusive, no none
+document.querySelectorAll('#timeChips .chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('#timeChips .chip').forEach(c => c.classList.remove('selected'));
+    chip.classList.add('selected');
+    document.getElementById('timeCustom').value = '';
+    document.getElementById('timeCustom').style.display = 'none';
+  });
+});
+document.getElementById('timeCustom').addEventListener('input', function () {
+  if (this.value) document.querySelectorAll('#timeChips .chip').forEach(c => c.classList.remove('selected'));
+});
+
+// Goal change — description + conditional sub-fields
+const GOAL_DESCS = {
+  build_muscle: 'Higher volume, progressive overload, and protein-focused nutrition.',
+  lose_fat: 'Caloric deficit, higher rep ranges, and cardio mix for fat loss.',
+  recomposition: 'Simultaneous fat loss and muscle gain — dietary precision matters.',
+  build_strength: 'Low-rep, high-intensity compound work with full recovery between sets.',
+  improve_endurance: 'Aerobic base building, progressive mileage, and Zone 2 training.',
+  improve_athletic: 'Power, speed, and agility — sport-specific patterns prioritised.',
+  improve_mobility: 'Joint mobility, flexibility, and movement quality as the focus.',
+  skill_based: 'Technique and neurological practice — quality before fatigue.',
+  event_based: 'Structured prep built around your specific event or race.',
+  general: 'Balanced fitness — health, energy, and long-term consistency.',
+  other: 'Custom goal — describe it below and the plan will adapt accordingly.',
+};
+document.getElementById('goal').addEventListener('change', function () {
+  const v = this.value;
+  document.getElementById('goalDesc').textContent = GOAL_DESCS[v] || '';
+  document.getElementById('eventTypeField').classList.toggle('visible', v === 'event_based');
+  document.getElementById('skillTypeField').classList.toggle('visible', v === 'skill_based');
+  document.getElementById('otherGoalField').classList.toggle('visible', v === 'other');
+});
+
+function getTimeValue() {
+  const sel = document.querySelector('#timeChips .chip.selected');
+  if (sel) return sel.dataset.val;
+  const custom = document.getElementById('timeCustom').value;
+  return (custom && parseInt(custom) > 0) ? custom : '45';
+}
+function getExclusiveChipValue(id) {
+  const el = document.querySelector(`#${id} .chip.selected`);
+  return el ? el.dataset.val : null;
+}
 
 function toggleDemo() {
   demoMode = !demoMode;
@@ -1221,7 +1387,14 @@ function toggleDemo() {
   if (!demoMode) return;
   const d = DEMO_PROFILE;
   document.getElementById('goal').value = d.goal;
-  document.getElementById('time').value = d.time;
+  document.getElementById('goalDesc').textContent = GOAL_DESCS[d.goal] || '';
+  document.getElementById('eventTypeField').classList.toggle('visible', d.goal === 'event_based');
+  document.getElementById('skillTypeField').classList.toggle('visible', d.goal === 'skill_based');
+  document.getElementById('otherGoalField').classList.toggle('visible', d.goal === 'other');
+  // Time chips
+  document.querySelectorAll('#timeChips .chip').forEach(c => c.classList.toggle('selected', c.dataset.val === d.time));
+  document.getElementById('timeCustom').value = '';
+  document.getElementById('timeCustom').style.display = 'none';
   document.getElementById('energy').value = d.energy;
   document.getElementById('focus').value = d.focus;
   document.getElementById('foods').value = d.foods;
@@ -1232,14 +1405,19 @@ function toggleDemo() {
   document.getElementById('scheduleBlocks').value = d.scheduleBlocks;
   document.getElementById('prefWindow').value = d.prefWindow;
   document.getElementById('stress').value = d.stress;
-  document.getElementById('eatBefore').value = d.eatBefore;
-  document.getElementById('eatAfter').value = d.eatAfter;
   document.getElementById('injurySeverity').value = d.injurySeverity;
   document.getElementById('rehabPref').value = d.rehabPref;
+  document.getElementById('waterTarget').value = d.waterTarget;
   document.querySelectorAll('#equipmentChips .chip').forEach(c => c.classList.toggle('selected', d.equipment.includes(c.dataset.val)));
   document.querySelectorAll('#sorenessChips .chip').forEach(c => c.classList.toggle('selected', d.soreness.includes(c.dataset.val)));
   document.querySelectorAll('#injuryChips .chip').forEach(c => c.classList.toggle('selected', d.injuries.includes(c.dataset.val)));
   document.querySelectorAll('#restrictionChips .chip').forEach(c => c.classList.toggle('selected', d.restrictions.includes(c.dataset.val)));
+  document.querySelectorAll('#secondaryGoalChips .chip').forEach(c => c.classList.toggle('selected', d.secondaryGoals.includes(c.dataset.val)));
+  document.querySelectorAll('#eventTypeChips .chip').forEach(c => c.classList.toggle('selected', c.dataset.val === d.eventType));
+  document.querySelectorAll('#preworkoutChips .chip').forEach(c => c.classList.toggle('selected', c.dataset.val === d.preworkout));
+  document.querySelectorAll('#postworkoutChips .chip').forEach(c => c.classList.toggle('selected', c.dataset.val === d.postworkout));
+  document.querySelectorAll('#hydrationChips .chip').forEach(c => c.classList.toggle('selected', c.dataset.val === d.hydrationStatus));
+  document.querySelectorAll('#supplementChips .chip').forEach(c => c.classList.toggle('selected', d.supplements.includes(c.dataset.val)));
 }
 
 function togglePresenter() {
@@ -1261,7 +1439,11 @@ function resetForm() {
 function gatherParams() {
   return {
     goal: document.getElementById('goal').value,
-    time: document.getElementById('time').value,
+    secondaryGoals: getChipValues('secondaryGoalChips'),
+    eventType: getExclusiveChipValue('eventTypeChips'),
+    skillType: getExclusiveChipValue('skillTypeChips'),
+    otherGoalText: document.getElementById('otherGoalText')?.value || '',
+    time: getTimeValue(),
     energy: document.getElementById('energy').value,
     focus: document.getElementById('focus').value,
     equipment: getEquipment(),
@@ -1273,19 +1455,22 @@ function gatherParams() {
     scheduleBlocks: document.getElementById('scheduleBlocks').value,
     prefWindow: document.getElementById('prefWindow').value,
     stress: document.getElementById('stress').value,
-    eatBefore: document.getElementById('eatBefore').value,
-    eatAfter: document.getElementById('eatAfter').value,
+    preworkout: getExclusiveChipValue('preworkoutChips') || 'light_snack',
+    postworkout: getExclusiveChipValue('postworkoutChips') || 'within_1hr',
     soreness: getChipValues('sorenessChips')[0] || 'none',
     injuries: getChipValues('injuryChips'),
     injurySeverity: document.getElementById('injurySeverity').value,
     rehabPref: document.getElementById('rehabPref').value,
     restrictions: getChipValues('restrictionChips'),
+    waterTarget: document.getElementById('waterTarget').value || '2',
+    hydrationStatus: getExclusiveChipValue('hydrationChips') || 'okay',
+    supplements: getChipValues('supplementChips'),
   };
 }
 
 function generate() {
   const p = gatherParams();
-  if (!p.goal || !p.time || !p.energy || !p.focus) { alert('Please fill in goal, time, energy, and focus.'); return; }
+  if (!p.goal || !p.energy || !p.focus) { alert('Please fill in goal, energy, and focus.'); return; }
   if (p.equipment.length === 0) { alert('Please select at least one equipment option.'); return; }
 
   currentParams = p;
@@ -1329,7 +1514,7 @@ function generate() {
 // ============================================================
 function renderOutput() {
   const workout = currentWorkout, meal = currentMeal, schedule = currentSchedule, p = currentParams;
-  const goalLabels = { build_muscle:'Build Muscle', lose_fat:'Lose Fat', recomposition:'Recomp', strength:'Strength', general:'General Fitness' };
+  const goalLabels = { build_muscle:'Build Muscle', lose_fat:'Lose Fat', recomposition:'Recomp', strength:'Strength', build_strength:'Build Strength', improve_endurance:'Endurance', improve_athletic:'Athletic', improve_mobility:'Mobility', skill_based:'Skill Training', event_based:'Event Prep', general:'General Fitness', other:'Custom' };
   const energyLabels = { great:'High Energy', okay:'Normal', tired:'Low Energy', sore:'Recovery' };
   let html = '';
 
